@@ -38,6 +38,7 @@
       mix-blend-mode: multiply;
     }
     a { color: inherit; text-decoration: none; }
+    .placeholder-link { cursor: pointer; }
     a, button, input { font: inherit; }
     img { display: block; max-width: 100%; }
     button { cursor: pointer; }
@@ -292,7 +293,7 @@
     .story-photo:not(.essential-photo) .story-scene {
       position: absolute;
       inset: 0;
-      transform: translate3d(0, 0, 0) scale(1) !important;
+      transform: translate3d(0, 0, 0) scale(0.9) !important;
       transform-origin: center;
       transition: transform .7s cubic-bezier(.22, .8, .2, 1);
     }
@@ -922,7 +923,7 @@
         const row = Math.floor(index / 3);
         const tweak = productTweaks[key][index] || {};
         const badge = index < 3 ? `<span class="new-badge">NEW</span>` : "";
-        return `<article class="product-card"><a class="product-image placeholder-link" href="#" aria-label="${product[0]} 보기"><img src="${collection.image}" alt="${product[0]}" style="--col:${col}; --row:${row}; --tx:${tweak.tx || 0}px; --ty:${tweak.ty || 0}px; --scale:${tweak.scale || 1};"></a><div class="product-info"><a class="placeholder-link" href="#" aria-label="${product[0]} 보기"><span class="category">${product[3]}</span><div class="product-title"><h3 class="product-name-row"><span>${product[0]}</span>${badge}</h3></div><p>${product[1]}</p></a><div class="product-bottom"><strong class="price">${product[2]}</strong><button class="wish" type="button" aria-label="${product[0]} wishlist">♡</button></div></div></article>`;
+        return `<article class="product-card"><a class="product-image placeholder-link" aria-label="${product[0]} 보기"><img src="${collection.image}" alt="${product[0]}" style="--col:${col}; --row:${row}; --tx:${tweak.tx || 0}px; --ty:${tweak.ty || 0}px; --scale:${tweak.scale || 1};"></a><div class="product-info"><a class="placeholder-link" aria-label="${product[0]} 보기"><span class="category">${product[3]}</span><div class="product-title"><h3 class="product-name-row"><span>${product[0]}</span>${badge}</h3></div><p>${product[1]}</p></a><div class="product-bottom"><strong class="price">${product[2]}</strong><button class="wish" type="button" aria-label="${product[0]} wishlist">♡</button></div></div></article>`;
       }).join("");
       tabs.forEach(tab => tab.classList.toggle("is-active", tab.dataset.collection === key));
     }
@@ -935,6 +936,16 @@
     document.addEventListener("click", event => {
       if (!event.target.closest(".placeholder-link")) return;
       event.preventDefault();
+    });
+    document.querySelectorAll(".placeholder-link").forEach(el => el.removeAttribute("href"));
+    document.querySelectorAll("a[href^='#']").forEach(el => {
+      const target = el.getAttribute("href");
+      el.removeAttribute("href");
+      el.style.cursor = "pointer";
+      el.addEventListener("click", () => {
+        const dest = document.querySelector(target);
+        if (dest) dest.scrollIntoView({ behavior: "smooth" });
+      });
     });
     renderCollection("explorer");
 
