@@ -1,121 +1,112 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+function Jaguar() {
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <svg
+      viewBox="0 0 300 360"
+      width="280"
+      height="336"
+      fill="none"
+      stroke="#111"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <title>Cute jaguar</title>
 
-      <div className="ticks"></div>
+      {/* Head - broad and round */}
+      <circle cx="150" cy="128" r="80" />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Left ear - short, rounded */}
+      <path d="M88,85 L72,42 L120,68" />
+      <path d="M93,82 L80,50 L115,70" />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      {/* Right ear */}
+      <path d="M212,85 L228,42 L180,68" />
+      <path d="M207,82 L220,50 L185,70" />
+
+      {/* Muzzle - prominent jaguar jowl */}
+      <ellipse cx="150" cy="160" rx="33" ry="21" />
+
+      {/* Left eye */}
+      <circle cx="120" cy="116" r="18" />
+      <ellipse cx="120" cy="118" rx="10" ry="12" fill="#111" stroke="none" />
+      <circle cx="114" cy="111" r="4.5" fill="white" stroke="none" />
+
+      {/* Right eye */}
+      <circle cx="180" cy="116" r="18" />
+      <ellipse cx="180" cy="118" rx="10" ry="12" fill="#111" stroke="none" />
+      <circle cx="174" cy="111" r="4.5" fill="white" stroke="none" />
+
+      {/* Nose - wide */}
+      <path d="M142,153 L150,161 L158,153 Q150,145 142,153Z" fill="#111" stroke="none" />
+
+      {/* Mouth */}
+      <path d="M140,162 Q150,171 160,162" />
+
+      {/* Jaguar tear streak marks */}
+      <path d="M124,132 Q121,147 117,162" />
+      <path d="M176,132 Q179,147 183,162" />
+
+      {/* Forehead rosette spots */}
+      <ellipse cx="150" cy="88" rx="9" ry="6" />
+      <circle cx="150" cy="88" r="2.5" fill="#111" stroke="none" />
+      <ellipse cx="130" cy="98" rx="6" ry="5" />
+      <ellipse cx="170" cy="98" rx="6" ry="5" />
+
+      {/* Left whiskers */}
+      <line x1="18" y1="151" x2="117" y2="157" />
+      <line x1="16" y1="163" x2="117" y2="163" />
+      <line x1="18" y1="175" x2="117" y2="169" />
+
+      {/* Right whiskers */}
+      <line x1="282" y1="151" x2="183" y2="157" />
+      <line x1="284" y1="163" x2="183" y2="163" />
+      <line x1="282" y1="175" x2="183" y2="169" />
+
+      {/* Body - muscular */}
+      <ellipse cx="150" cy="272" rx="68" ry="58" />
+
+      {/* Body rosette 1 */}
+      <circle cx="133" cy="252" r="15" />
+      <circle cx="133" cy="252" r="5" fill="#111" stroke="none" />
+
+      {/* Body rosette 2 */}
+      <circle cx="168" cy="258" r="13" />
+      <circle cx="168" cy="258" r="4" fill="#111" stroke="none" />
+
+      {/* Body rosette 3 */}
+      <circle cx="150" cy="286" r="11" />
+      <circle cx="150" cy="286" r="3.5" fill="#111" stroke="none" />
+
+      {/* Shoulder spots */}
+      <ellipse cx="116" cy="237" rx="9" ry="7" />
+      <circle cx="116" cy="237" r="2.5" fill="#111" stroke="none" />
+      <ellipse cx="184" cy="237" rx="9" ry="7" />
+      <circle cx="184" cy="237" r="2.5" fill="#111" stroke="none" />
+
+      {/* Tail - long with spot */}
+      <path d="M216,258 Q262,215 257,162 Q252,124 228,114" />
+      <ellipse cx="254" cy="175" rx="7" ry="5" />
+      <circle cx="254" cy="175" r="2" fill="#111" stroke="none" />
+
+      {/* Left paw */}
+      <ellipse cx="118" cy="320" rx="26" ry="11" />
+      <path d="M104,317 Q111,327 118,328 Q125,327 132,317" />
+
+      {/* Right paw */}
+      <ellipse cx="182" cy="320" rx="26" ry="11" />
+      <path d="M168,317 Q175,327 182,328 Q189,327 196,317" />
+    </svg>
+  )
+}
+
+function App() {
+  return (
+    <section id="center">
+      <Jaguar />
+      <h1>jaguar</h1>
+    </section>
   )
 }
 
