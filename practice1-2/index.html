@@ -38,6 +38,7 @@
       mix-blend-mode: multiply;
     }
     a { color: inherit; text-decoration: none; }
+    .placeholder-link { cursor: pointer; }
     a, button, input { font: inherit; }
     img { display: block; max-width: 100%; }
     button { cursor: pointer; }
@@ -289,31 +290,74 @@
       transform: none !important;
       transition: none;
     }
-    .story-photo:not(.essential-photo) .story-image-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 0;
-      transform: scale(1) !important;
+    .story-photo:not(.essential-photo) .story-scene {
+      position: absolute;
+      inset: 0;
+      transform: translate3d(0, 0, 0) scale(1) !important;
       transform-origin: center;
-      transition: transform .5s ease;
+      transition: transform .7s cubic-bezier(.22, .8, .2, 1);
     }
-    .story-photo:not(.essential-photo):hover .story-image-frame img,
-    .story-photo:not(.essential-photo).is-inview .story-image-frame img {
-      transform: scale(1.08) !important;
+    .story-photo:not(.essential-photo) .story-background {
+      width: 100%;
+      height: auto;
+      border-radius: 0;
+      position: relative;
+      z-index: 1;
+      transform: translateY(-90px);
+    }
+    .story-photo:not(.essential-photo):hover .story-scene,
+    .story-photo:not(.essential-photo).is-inview .story-scene {
+      transform: translate3d(0, -20px, 0) scale(1.08) !important;
+    }
+    .story-image-copy {
+      position: absolute;
+      left: calc(7% + 23px);
+      top: calc(20% - 75px);
+      z-index: 4;
+      width: 27%;
+      margin: 0;
+      color: var(--acid);
+      text-align: center;
+      pointer-events: none;
+    }
+    .story-image-copy-en {
+      display: block;
+      font-family: var(--display);
+      font-size: 25px;
+      line-height: 25px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-align: right;
+      text-transform: uppercase;
+    }
+    .story-image-copy-ko {
+      display: block;
+      margin-top: 5px;
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 140%;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      text-align: right;
     }
     .essential-photo { width: 110%; inline-size: 110%; min-inline-size: 110%; max-inline-size: 110%; margin-left: 0; transform: none !important; }
+    .essential-photo .essential-scene {
+      position: absolute;
+      inset: 0;
+      transform: scale(1.1);
+      transform-origin: center;
+      transition: transform .7s cubic-bezier(.22, .8, .2, 1);
+    }
+    .essential-photo:hover .essential-scene,
+    .essential-photo.is-inview .essential-scene {
+      transform: scale(1.18);
+    }
     .essential-photo .story-image-frame img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       border-radius: 0;
-      transform: scale(1.1);
       object-position: center calc(50% - 50px);
-    }
-    .essential-photo:hover .story-image-frame img,
-    .essential-photo.is-inview .story-image-frame img {
-      transform: scale(1.18);
     }
     .story-arrow {
       position: absolute;
@@ -384,8 +428,8 @@
     }
     .collection .section-head p,
     .collection-note { display: none; }
-    .tabs { position: sticky; top: 0; z-index: 12; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: -20px 0 25px; padding: 10px 0; background: #fff; }
-    .tab { min-height: 44px; padding: 0 18px; border: 1px solid transparent; border-radius: 999px; background: transparent; color: var(--ink); font-family: var(--ui); font-weight: 600; }
+    .tabs { position: sticky; top: 0; z-index: 12; display: flex; flex-wrap: wrap; justify-content: center; gap: 0; margin: -20px 0 25px; padding: 10px 0; background: #fff; }
+    .tab { min-height: 44px; padding: 0 18px; border: 1px solid transparent; border-radius: 999px; background: transparent; color: var(--ink); font-family: var(--ui); font-weight: 500; text-transform: uppercase; letter-spacing: .08em; }
     .tab.is-active,
     .tab:hover { border-color: var(--ink); background: transparent; color: var(--ink); box-shadow: none; }
     .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 60px; }
@@ -424,7 +468,7 @@
     .snap-caption.is-entering { opacity: 0; transform: translateX(-24px); }
     .snap-caption h3 { margin: 0; font-family: var(--display); font-size: clamp(24px, 3.3vw, 44px); line-height: 140%; font-weight: 700; text-align: center; }
     .snap-caption p { margin: 0; color: #57534c; font-size: clamp(16px, 1.3vw, 18px); line-height: 140%; }
-    .snap-photo { position: relative; width: 100%; aspect-ratio: 4 / 3; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: hidden; transform: none; transition: none; }
+    .snap-photo { position: relative; width: 100%; aspect-ratio: 5 / 4; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: hidden; transform: none; transition: none; }
     .snap-photo:hover { transform: none; }
     .snap-photo img { width: 100%; height: 100%; object-fit: cover; }
     .snap-image { position: absolute; inset: 0; transition: transform .62s cubic-bezier(.22,.8,.2,1), filter .62s cubic-bezier(.22,.8,.2,1); }
@@ -453,11 +497,13 @@
     .campaign-card img { width: 100%; height: 100%; object-fit: cover; border: 0; border-radius: 0; transition: transform .35s ease; }
     .campaign-card::after { content: none; }
     .campaign-card:hover img { transform: scale(1.08); }
+    .campaign-card:first-child img { transform: translateY(-12px) scale(1.65); transform-origin: 8% 59%; }
+    .campaign-card:first-child:hover img { transform: translateY(-12px) scale(1.73); }
     .campaign-content { position: static; z-index: 2; color: var(--ink); }
     .campaign-content h3 { margin: 0 0 8px; font-family: var(--ui); font-size: clamp(15px, 1.35vw, 20px); line-height: 140%; font-weight: 700; }
     .campaign-content p { margin: 0; color: var(--muted); line-height: 140%; }
     .campaign-content .button { display: none; }
-    .off { position: absolute; left: 15px; bottom: 15px; z-index: 2; display: block; color: var(--acid); font-family: var(--display); font-size: clamp(24px, 2.1vw, 30px); line-height: 1; font-weight: 700; pointer-events: none; }
+    .off { position: absolute; left: 15px; bottom: 15px; z-index: 2; display: block; color: var(--acid); font-family: var(--display); font-size: clamp(24px, 2.1vw, 30px); line-height: 1; font-weight: 700; pointer-events: none; padding-top: 6px; padding-right: 8px; border-top: 2px solid var(--acid); border-right: 2px solid var(--acid); }
     .campaign-card:hover .off { transform: none; }
 
     .join { position: relative; overflow: hidden; text-align: center; background: #111; color: #fff; }
@@ -573,7 +619,13 @@
       <div class="section-inner split">
         <div class="photo-box story-photo">
           <div class="story-image-frame">
-            <img src="assets/signature/redtag.jpg" alt="Monster Factory red tag on travel bag">
+            <div class="story-scene">
+              <img class="story-background" src="assets/signature/redtag.png" alt="Monster Factory red tag on travel bag">
+              <p class="story-image-copy">
+                <span class="story-image-copy-en">NOT A TAG<br>A SIGNAL</span>
+                <span class="story-image-copy-ko">호기심을 따라<br>낯선 방향으로</span>
+              </p>
+            </div>
           </div>
           <span class="story-arrow" aria-hidden="true">
             <svg viewBox="0 0 220 180" focusable="false">
@@ -618,9 +670,15 @@
       <div class="section-inner split">
         <div class="photo-box story-photo essential-photo">
           <div class="story-image-frame">
-            <img src="assets/essentials/weekend-bag.jpg" alt="Weekend travel bag">
+            <div class="essential-scene">
+              <img src="assets/essentials/weekend-bag.png" alt="Weekend travel bag">
+              <p class="story-image-copy" style="left: calc(7% + 106px); top: calc(20% + 65px);">
+                <span class="story-image-copy-en">WEEKEND<br>IS ENOUGH</span>
+                <span class="story-image-copy-ko">멀리보다<br>조금 다르게</span>
+              </p>
+            </div>
           </div>
-          <span class="story-arrow" aria-hidden="true">
+          <span class="story-arrow" aria-hidden="true" style="bottom: 103px; left: calc(100% + 35px);">
             <svg viewBox="0 0 220 180" focusable="false">
               <path d="M196 148C154 136 119 111 88 80C69 61 54 48 36 36"/>
               <path d="M36 36L112 44"/>
@@ -691,24 +749,14 @@
     const heroSection = document.querySelector(".hero");
     const heroContent = document.querySelector(".hero-content");
     const heroSticker = document.querySelector(".hero-sticker");
+    const productSection = document.querySelector("#collection");
     const productTabs = document.querySelector(".tabs");
     const motionPhotos = [...document.querySelectorAll("#story .story-photo, #essentials .story-photo")];
     let lastScrollY = window.scrollY;
     let ticking = false;
-    let productTabsStartY = 0;
-
-    function getDocumentTop(element) {
-      let top = 0;
-      let current = element;
-      while (current) {
-        top += current.offsetTop;
-        current = current.offsetParent;
-      }
-      return top;
-    }
 
     function updateLayoutMetrics() {
-      productTabsStartY = productTabs ? getDocumentTop(productTabs) : heroSection.offsetHeight;
+      updateHeader();
     }
 
     function updateHeroMotion() {
@@ -734,7 +782,7 @@
         const rect = photo.getBoundingClientRect();
         const distance = rect.top + rect.height / 2 - viewportMiddle;
         const progress = Math.min(Math.max(distance / range, -1), 1);
-        const reachedMiddle = distance < window.innerHeight * .16;
+        const reachedMiddle = distance < window.innerHeight * -.08;
 
         photo.classList.toggle("is-inview", reachedMiddle);
       });
@@ -745,7 +793,14 @@
       const scrollingDown = currentY > lastScrollY + 4;
       const scrollingUp = currentY < lastScrollY - 4;
       const pastHero = currentY >= heroSection.offsetHeight - 220;
-      const aboveProductTabsStart = currentY < productTabsStartY - 1;
+      const tabsRect = productTabs?.getBoundingClientRect();
+      const productRect = productSection?.getBoundingClientRect();
+      const productTabsAreSticky = Boolean(
+        tabsRect &&
+        productRect &&
+        tabsRect.top <= 1 &&
+        productRect.bottom >= tabsRect.height
+      );
 
       header.classList.toggle("is-solid", pastHero);
       headerLogo.src = pastHero ? "assets/brand/letter.svg" : "assets/brand/letter_acid.svg";
@@ -757,11 +812,15 @@
         link.classList.toggle("is-active", activeSection && link.getAttribute("href") === `#${activeSection.id}`);
       });
 
-      if (scrollingDown && currentY > 120) {
+      if (productTabsAreSticky) {
         header.classList.add("is-hidden");
+      } else if (scrollingDown && currentY > 120) {
+        header.classList.add("is-hidden");
+      } else if (scrollingUp) {
+        header.classList.remove("is-hidden");
       }
 
-      if ((scrollingUp && aboveProductTabsStart) || currentY < 20) {
+      if (currentY < 20) {
         header.classList.remove("is-hidden");
       }
 
@@ -872,7 +931,7 @@
         const row = Math.floor(index / 3);
         const tweak = productTweaks[key][index] || {};
         const badge = index < 3 ? `<span class="new-badge">NEW</span>` : "";
-        return `<article class="product-card"><a class="product-image placeholder-link" href="#" aria-label="${product[0]} 보기"><img src="${collection.image}" alt="${product[0]}" style="--col:${col}; --row:${row}; --tx:${tweak.tx || 0}px; --ty:${tweak.ty || 0}px; --scale:${tweak.scale || 1};"></a><div class="product-info"><a class="placeholder-link" href="#" aria-label="${product[0]} 보기"><span class="category">${product[3]}</span><div class="product-title"><h3 class="product-name-row"><span>${product[0]}</span>${badge}</h3></div><p>${product[1]}</p></a><div class="product-bottom"><strong class="price">${product[2]}</strong><button class="wish" type="button" aria-label="${product[0]} wishlist">♡</button></div></div></article>`;
+        return `<article class="product-card"><a class="product-image placeholder-link" aria-label="${product[0]} 보기"><img src="${collection.image}" alt="${product[0]}" style="--col:${col}; --row:${row}; --tx:${tweak.tx || 0}px; --ty:${tweak.ty || 0}px; --scale:${tweak.scale || 1};"></a><div class="product-info"><a class="placeholder-link" aria-label="${product[0]} 보기"><span class="category">${product[3]}</span><div class="product-title"><h3 class="product-name-row"><span>${product[0]}</span>${badge}</h3></div><p>${product[1]}</p></a><div class="product-bottom"><strong class="price">${product[2]}</strong><button class="wish" type="button" aria-label="${product[0]} wishlist">♡</button></div></div></article>`;
       }).join("");
       tabs.forEach(tab => tab.classList.toggle("is-active", tab.dataset.collection === key));
     }
@@ -885,6 +944,16 @@
     document.addEventListener("click", event => {
       if (!event.target.closest(".placeholder-link")) return;
       event.preventDefault();
+    });
+    document.querySelectorAll(".placeholder-link").forEach(el => el.removeAttribute("href"));
+    document.querySelectorAll("a[href^='#']").forEach(el => {
+      const target = el.getAttribute("href");
+      el.removeAttribute("href");
+      el.style.cursor = "pointer";
+      el.addEventListener("click", () => {
+        const dest = document.querySelector(target);
+        if (dest) dest.scrollIntoView({ behavior: "smooth" });
+      });
     });
     renderCollection("explorer");
 
