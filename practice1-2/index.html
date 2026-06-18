@@ -293,17 +293,17 @@
     .story-photo:not(.essential-photo) .story-scene {
       position: absolute;
       inset: 0;
-      transform: translate3d(0, 0, 0) scale(0.9) !important;
+      transform: translate3d(0, 0, 0) scale(1) !important;
       transform-origin: center;
       transition: transform .7s cubic-bezier(.22, .8, .2, 1);
     }
     .story-photo:not(.essential-photo) .story-background {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      height: auto;
       border-radius: 0;
       position: relative;
       z-index: 1;
+      transform: translateY(-90px);
     }
     .story-photo:not(.essential-photo):hover .story-scene,
     .story-photo:not(.essential-photo).is-inview .story-scene {
@@ -312,7 +312,7 @@
     .story-image-copy {
       position: absolute;
       left: calc(7% + 23px);
-      top: calc(20% - 55px);
+      top: calc(20% - 75px);
       z-index: 4;
       width: 27%;
       margin: 0;
@@ -341,17 +341,23 @@
       text-align: right;
     }
     .essential-photo { width: 110%; inline-size: 110%; min-inline-size: 110%; max-inline-size: 110%; margin-left: 0; transform: none !important; }
+    .essential-photo .essential-scene {
+      position: absolute;
+      inset: 0;
+      transform: scale(1.1);
+      transform-origin: center;
+      transition: transform .7s cubic-bezier(.22, .8, .2, 1);
+    }
+    .essential-photo:hover .essential-scene,
+    .essential-photo.is-inview .essential-scene {
+      transform: scale(1.18);
+    }
     .essential-photo .story-image-frame img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       border-radius: 0;
-      transform: scale(1.1);
       object-position: center calc(50% - 50px);
-    }
-    .essential-photo:hover .story-image-frame img,
-    .essential-photo.is-inview .story-image-frame img {
-      transform: scale(1.18);
     }
     .story-arrow {
       position: absolute;
@@ -664,11 +670,13 @@
       <div class="section-inner split">
         <div class="photo-box story-photo essential-photo">
           <div class="story-image-frame">
-            <img src="assets/essentials/weekend-bag.png" alt="Weekend travel bag">
-            <p class="story-image-copy" style="left: calc(7% + 106px); top: calc(20% + 65px);">
-              <span class="story-image-copy-en">WEEKEND<br>IS ENOUGH</span>
-              <span class="story-image-copy-ko">멀리보다<br>조금 다르게</span>
-            </p>
+            <div class="essential-scene">
+              <img src="assets/essentials/weekend-bag.png" alt="Weekend travel bag">
+              <p class="story-image-copy" style="left: calc(7% + 106px); top: calc(20% + 65px);">
+                <span class="story-image-copy-en">WEEKEND<br>IS ENOUGH</span>
+                <span class="story-image-copy-ko">멀리보다<br>조금 다르게</span>
+              </p>
+            </div>
           </div>
           <span class="story-arrow" aria-hidden="true" style="bottom: 103px; left: calc(100% + 35px);">
             <svg viewBox="0 0 220 180" focusable="false">
