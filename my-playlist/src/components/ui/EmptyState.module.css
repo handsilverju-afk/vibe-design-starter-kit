@@ -1,0 +1,25 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.message {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.action {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  background: rgba(139,122,238,0.08);
+  border: 1px solid rgba(139,122,238,0.2);
+  border-radius: 100px;
+  padding: 8px 20px;
+  cursor: pointer;
+}

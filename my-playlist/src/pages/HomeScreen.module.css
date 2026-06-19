@@ -1,0 +1,177 @@
+.screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* ── WELCOME MODE ── */
+.welcomeScreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 48px 40px;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.welcomeText {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.greeting {
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--text-primary);
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.hint {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.welcomeInput {
+  width: 100%;
+  max-width: 560px;
+}
+
+/* ── 공유: 인풋 래퍼 ── */
+.inputWrap {
+  position: relative;
+  width: 100%;
+}
+
+/* ── CHAT MODE ── */
+.chatScreen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chatContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 32px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 760px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.chatInput {
+  flex-shrink: 0;
+  padding: 0 20px 20px;
+  background: #fff;
+  /* border 없음, textarea top에서 시작 */
+}
+
+/* Chat 모드 전용 textarea 스타일: 진한 border + shadow */
+.chatTextarea {
+  border: 1px solid rgba(0,0,0,0.15);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* ── 공유 요소 ── */
+.userBubble {
+  align-self: flex-end;
+  max-width: 72%;
+  background: linear-gradient(135deg, #F2F0F9, #ECEAF5);
+  border-radius: 18px 18px 4px 18px;
+  padding: 12px 16px;
+  animation: bubbleIn 0.2s ease forwards;
+}
+
+.userText {
+  font-size: 14px;
+  color: #3A3552;
+  line-height: 1.65;
+  margin: 0;
+  letter-spacing: -0.01em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.aiBubble {
+  align-self: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+  border-radius: 4px 18px 18px 18px;
+  padding: 12px 16px;
+}
+
+.playlistArea {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.aiLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* ── 전송 버튼 (인풋 안 우측 하단) ── */
+.sendBtn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--btn-bg);
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s, transform 0.15s, background 0.15s;
+  font-family: inherit;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.sendBtn:disabled { opacity: 0.25; cursor: default; }
+.sendBtn:hover:not(:disabled) { background: var(--btn-bg-hover); transform: scale(1.08); }
+.sendBtn:active:not(:disabled) { transform: scale(0.96); }
+
+/* 로딩 중 stop 버튼 */
+.stopBtn {
+  background: #8A8A9E;
+  font-size: 13px;
+}
+.stopBtn:hover {
+  background: #6E6E82 !important;
+  transform: scale(1.05) !important;
+}
+
+.aiQuestionText {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+@keyframes bubbleIn {
+  from { opacity: 0; transform: scale(0.95) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}

@@ -1,0 +1,66 @@
+.screen {
+  height: 100%;
+  overflow-y: auto;
+  background: #fff;
+}
+
+/* ── 날짜 헤더 ── */
+.dateHeader {
+  padding: 52px 36px 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.dateLine {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+.dayBadge {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* ── 에디토리얼 인용 블록 ── */
+.quoteBlock {
+  padding: 36px 36px 32px;
+}
+
+.openQuote {
+  display: block;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 78px;
+  line-height: 0.65;
+  color: rgba(139,122,238,0.2);
+  margin-bottom: -10px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.quoteText {
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.9;
+  letter-spacing: -0.02em;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── 플레이리스트 ── */
+.playlistSection {
+  padding: 0 36px 48px;
+}
+
+.notFound {
+  padding: 60px 32px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}

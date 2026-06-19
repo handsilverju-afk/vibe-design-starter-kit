@@ -1,0 +1,130 @@
+/* ── Gaseous Nebula Orb — 경계 없는 가스 빛 덩어리 ── */
+
+@keyframes nebulaFloat {
+  0%, 100% { transform: translateY(0px)   rotate(0deg); }
+  35%       { transform: translateY(-11px) rotate(4deg); }
+  70%       { transform: translateY(-4px)  rotate(-3deg); }
+}
+
+@keyframes nebulaMorph {
+  0%, 100% { border-radius: 50% 50% 50% 50%; }
+  15%       { border-radius: 62% 38% 46% 54% / 44% 56% 44% 56%; }
+  30%       { border-radius: 38% 62% 60% 40% / 55% 45% 62% 38%; }
+  50%       { border-radius: 55% 45% 38% 62% / 46% 54% 60% 40%; }
+  68%       { border-radius: 44% 56% 56% 44% / 60% 40% 46% 54%; }
+  85%       { border-radius: 58% 42% 44% 56% / 40% 60% 52% 48%; }
+}
+
+@keyframes nebulaColorDrift {
+  0%   { transform: rotate(0deg)   scale(1);    opacity: 0.88; }
+  30%  { transform: rotate(110deg) scale(1.08); opacity: 1;    }
+  65%  { transform: rotate(230deg) scale(0.94); opacity: 0.92; }
+  100% { transform: rotate(360deg) scale(1);    opacity: 0.88; }
+}
+
+@keyframes outerHaloDrift {
+  0%, 100% { opacity: 0.55; transform: scale(1) rotate(0deg);    }
+  33%       { opacity: 0.88; transform: scale(1.18) rotate(55deg); }
+  66%       { opacity: 0.62; transform: scale(0.92) rotate(115deg); }
+}
+
+@keyframes coreGlow {
+  0%, 100% { opacity: 0.65; transform: scale(0.85); }
+  50%       { opacity: 1;    transform: scale(1.15); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.88; }
+  50%       { transform: scale(1.1); opacity: 1;    }
+}
+
+/* ── Wrapper ── */
+.orbWrap {
+  position: relative;
+  flex-shrink: 0;
+  animation: nebulaFloat 7s ease-in-out infinite;
+}
+
+/* 대형 외부 헤일로 — 크고 흐릿한 빛 구름 */
+.orbWrap::before {
+  content: '';
+  position: absolute;
+  inset: -55%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 35% 38%, rgba(255,179,217,0.45) 0%, transparent 52%),
+    radial-gradient(ellipse at 64% 55%, rgba(100,200,255,0.52) 0%, transparent 52%),
+    radial-gradient(ellipse at 50% 50%, rgba(175,225,255,0.30) 0%, transparent 65%),
+    radial-gradient(ellipse at 50% 50%, rgba(196,181,253,0.18) 0%, transparent 68%);
+  filter: blur(22px);
+  animation: outerHaloDrift 12s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── 메인 가스 구체 — 형태가 흐릿하고 경계 없음 ── */
+.orb {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  /* 다중 방향 가스 색채 */
+  background:
+    radial-gradient(ellipse 85% 70% at 48% 55%, rgba(255,150,205,0.85) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 80% at 30% 42%, rgba(100,195,255,0.88) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 60% at 68% 25%, rgba(175,232,255,0.72) 0%, transparent 50%),
+    radial-gradient(ellipse 75% 65% at 65% 68%, rgba(200,172,255,0.50) 0%, transparent 52%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(140,185,245,0.35) 0%, transparent 72%);
+
+  /* blur 줄여서 더 선명하게 */
+  filter: blur(5px);
+
+  animation:
+    nebulaMorph 10s ease-in-out infinite,
+    nebulaColorDrift 18s ease-in-out infinite;
+}
+
+/* 밝은 내부 핵 — 가스 구름의 중심 에너지 */
+.orb::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255,255,255,0.88)  0%,
+    rgba(210,242,255,0.55)  32%,
+    rgba(180,220,255,0.22)  62%,
+    transparent 78%
+  );
+  filter: blur(3px);
+  animation: coreGlow 4.5s ease-in-out infinite;
+}
+
+/* ── compact 모드 ── */
+.orbWrap.compact::before {
+  display: none;
+}
+
+.orbWrap.compact .orb {
+  filter: blur(5px);
+}
+
+/* ── loading 상태 — 더 빠르고 에너지 넘침 ── */
+.orbWrap.loading {
+  animation: nebulaFloat 2.5s ease-in-out infinite, pulse 1.4s ease-in-out infinite;
+}
+
+.orbWrap.loading::before {
+  animation: outerHaloDrift 3s ease-in-out infinite;
+}
+
+.orbWrap.loading .orb {
+  animation:
+    nebulaMorph 2.8s ease-in-out infinite,
+    nebulaColorDrift 5s ease-in-out infinite;
+}
+
+.orbWrap.loading .orb::before {
+  animation: coreGlow 1.2s ease-in-out infinite;
+}

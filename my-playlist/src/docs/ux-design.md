@@ -2,17 +2,18 @@
 
 ## 1. 유저 시나리오 리스트
 
-| # | 시나리오 | 트리거 | 기대 결과 |1
+| # | 시나리오 | 트리거 | 기대 결과 |
 |---|----------|--------|-----------|
-| S1 | **첫 방문** | 앱 최초 실행 | 홈 화면 진입, 메모 입력 안내 문구 표시 |
-| S2 | **아침 메모 작성** | 홈 진입 → 텍스트 입력 | 오늘 날짜 자동 표시, 기분/일정 텍스트 입력 |
-| S3 | **자동 추천 시작** | 메모 입력 후 타이핑 멈춤 (debounce 1.5초, 최소 10자) | Claude가 자동으로 메모를 분석해 3–5개 플레이리스트 카드 표시 (버튼 없음) |
-| S4 | **추천 중 로딩** | debounce 발동 → API 요청 중 | 로딩 인디케이터 표시, 메모 입력 유지 |
-| S5 | **플레이리스트 선택 및 자동 저장** | 플레이리스트 카드 클릭 | 외부 링크 새 탭으로 열림 + 동시에 메모·추천 목록 자동 저장 |
-| S6 | **메모 수정 후 재추천** | 기존 메모 수정 → 다시 타이핑 멈춤 | 새 메모 기준으로 추천 목록 자동 갱신, 이전 기록 덮어씀 |
-| S7 | **아카이브 조회** | 하단 탭 "기록" 클릭 | 날짜 역순으로 과거 기록 리스트 표시 |
-| S8 | **기록 상세 보기** | 아카이브 리스트 항목 클릭 | 해당 날짜의 메모 + 들은 플레이리스트 상세 표시 |
-| S9 | **기록이 없을 때 아카이브 진입** | 아카이브 탭 진입 (기록 0건) | 빈 상태 안내 문구 + 홈으로 돌아가기 버튼 |
+| S1 | **첫 방문 / 리로딩 / "새 뮤직리스트" 클릭 / "Vibe" 로고 클릭 / 날짜 변경** | 앱 최초 실행, 새로고침, 사이드바 "새 뮤직리스트" 버튼 또는 "Vibe" 텍스트 클릭, 날짜 바뀐 뒤 첫 방문 | Welcome 모드: 중앙에 AiOrb(140px) + 인사말 + 입력창 표시 |
+| S2 | **아침 메모 작성** | Welcome 모드 중앙 입력창에 텍스트 입력 | 중앙 입력창에서 타이핑. Enter 전송 / Shift+Enter 줄바꿈. 전송 후 입력창 자동 초기화. |
+| S3 | **추천 요청** | Enter 또는 버튼 클릭 (최소 10자) | Chat 모드로 전환: 유저 버블 + AI 로딩 → 앨범 리스트 인라인 표시 (15-20개) |
+| S4 | **추천 중 로딩** | 전송 후 | Chat 모드로 전환, 유저 버블 + AI 타이핑 버블. 입력창 버튼이 회색 ■ stop 버튼으로 변경. 이전 목록이 있으면 함께 표시. |
+| S4-1 | **추천 중단** | stop 버튼 클릭 | 작업 즉시 중단. AI 질문 버블 노출: "오늘 기분이 어떤지, 어떤 일정이 있으신지 조금 더 알려주시면…" 입력창 계속 활성 상태. |
+| S5 | **앨범 재생** | 앨범 항목 클릭 | NowPlayingBanner 상단 고정. 트랙마다 배경 애니메이션 다름. 탭 전환해도 재생 유지. 자동 저장 + 토스트. 새 뮤직리스트 클릭 시 재생 중단 후 홈으로 |
+| S6 | **재추천** | Chat 모드에서 하단 입력창으로 새 메모 입력 후 전송 | 동일 화면에서 새 추천 목록으로 갱신 |
+| S7 | **히스토리 조회** | 사이드바 히스토리 항목 클릭 | 해당 세션의 기록 상세 화면 이동. key = sessionId ?? date (같은 날 여러 세션 개별 선택 가능). |
+| S8 | **기록 상세 보기** | 사이드바 히스토리 항목 클릭 | 에디토리얼 스타일 상세 화면: 년월일+요일 → 사용자 입력 (인용 스타일) → 플레이리스트. 이전 버튼/제목 없음. |
+| S9 | **히스토리 없음** | 첫 방문 사이드바 | 히스토리 섹션 없음 (빈 상태 표시 없음, 섹션 자체 미노출) |
 
 ---
 
@@ -24,67 +25,49 @@
 [앱 실행]
     │
     ▼
-[홈 화면]
- 오늘 날짜 표시
- 당일 기록 있으면 메모 + 추천 목록 복원
+[Welcome 모드] — 항상 빈 상태
+ AiOrb 140px 중앙 표시
+ 인사말: "오늘 하루는 어떤가요?"
+ 중앙 입력창
     │
-    ├─ 메모 입력 (textarea)
-    │       │
-    │       │  타이핑 멈춤 (debounce 1.5초, 최소 10자)
-    │       │  ← 버튼 없음, 자동 감지
-    │       ▼
-    │  [로딩 인디케이터]  ← Claude API 자동 호출
+    ├─ 입력 (Enter = 전송, Shift+Enter = 줄바꿈)
     │       │
     │       ▼
-    │  [플레이리스트 카드 3–5개 표시]
+    │  [Chat 모드로 전환]
+    │   - 상단: NowPlaying 고정 (재생 시)
+    │   - 스크롤 영역: 유저버블 + AI로딩 + 추천목록 인라인
+    │   - 하단 고정: 채팅 입력창
     │       │
-    │       │  카드 클릭
+    │       │  앨범 클릭
     │       ▼
-    │  ┌─────────────────────────────────────┐
-    │  │ 외부 링크 새 탭으로 열림             │
-    │  │ + 메모 & 추천 목록 자동 저장        │  ← 저장 버튼 없음
-    │  │ + 토스트 "기록됐어요!" 표시         │
-    │  └─────────────────────────────────────┘
+    │  [재생] NowPlayingBanner 활성화 (트랙별 배경 애니메이션)
     │
-    └─ [하단 탭: 기록]
+    └─ [사이드바: 히스토리 항목 클릭]
             │
             ▼
-       [아카이브 화면]
-        날짜별 리스트 (역순)
-            │
-            ├─ 기록 없음 → 빈 상태 안내
-            │
-            └─ 항목 클릭
-                    │
-                    ▼
-              [기록 상세 화면]
-               메모 전문
-               들은 플레이리스트 목록
-               외부 링크 버튼
+       [기록 상세 화면]
+        메모 전문 + 추천 앨범 + 미리듣기
 ```
 
 ### 상태 전이 (홈 화면)
 
 ```
-idle
-  │  텍스트 입력 시작
+Welcome 모드 (idle)
+  │  Enter / 버튼 클릭 (10자 이상)
   ▼
-typing
-  │  타이핑 멈춤 (debounce 1.5초) + 최소 10자 충족
-  ▼
-loading          ← Claude API 자동 호출
+Chat 모드 - loading
   │  성공
   ▼
-has_recommendations
-  │  카드 클릭
+Chat 모드 - ready (인라인 목록 표시)
+  │  앨범 클릭
   ▼
-auto_saved       ← 저장 + 외부 링크 동시에 / 토스트 표시
-
-  (메모 수정 시)
-has_recommendations → typing → loading → has_recommendations
-
-  (loading 중 에러 발생)
-loading → error  ← 에러 메시지 + 재시도 버튼
+Chat 모드 - playing (NowPlayingBanner 활성)
+  │  트랙 종료
+  ▼
+다음 트랙 자동 재생
+  │  "새 뮤직리스트" 클릭
+  ▼
+Welcome 모드 (reset)
 ```
 
 ---
@@ -95,11 +78,9 @@ loading → error  ← 에러 메시지 + 재시도 버튼
 
 | 컴포넌트 | 설명 | Props |
 |----------|------|-------|
-| `AppShell` | 전체 레이아웃 + 하단 탭 내비게이션 | `children` |
-| `BottomNav` | 홈 / 기록 탭 전환 | `activeTab`, `onTabChange` |
-| `Toast` | 저장 완료 / 에러 알림 | `message`, `type` |
-| `LoadingSpinner` | 추천 로딩 중 표시 | `size?` |
-| `EmptyState` | 데이터 없을 때 안내 | `message`, `actionLabel?`, `onAction?` |
+| `AppShell` | 좌측 사이드바(SideNav) + 우측 콘텐츠(NowPlayingBanner + 화면) 레이아웃 | `children` |
+| `SideNav` | 좌측 사이드바. "Vibe" 로고(클릭 시 첫화면, newPlaylist 동일) + "새 뮤직리스트" 버튼 + 히스토리 목록 | — (useApp 내부 사용) |
+| `Toast` | 저장 완료 / 에러 알림 | `message` |
 
 ---
 
@@ -107,24 +88,14 @@ loading → error  ← 에러 메시지 + 재시도 버튼
 
 | 컴포넌트 | 설명 | Props |
 |----------|------|-------|
-| `HomeScreen` | 홈 화면 전체 컨테이너 | — |
-| `DateBadge` | 오늘 날짜 표시 (YYYY.MM.DD) | `date` |
-| `MemoInput` | 기분/일정 입력 textarea (debounce 내장) | `value`, `onChange`, `placeholder`, `loading` |
-| `RecommendingIndicator` | 자동 추천 중 상태 표시 (입력창 하단, 미묘하게) | `visible` |
-| `PlaylistGrid` | 추천 카드 목록 래퍼 | `playlists`, `onPlay` |
-| `PlaylistCard` | 플레이리스트 단일 카드 (클릭 = 재생 + 저장) | `title`, `tags[]`, `url`, `platform`, `onClick` |
+| `HomeScreen` | Welcome 모드 / Chat 모드 두 가지 상태 | — |
+| `AiOrb` | Welcome 모드에서만 80px 중앙 표시. Chat 모드에서 숨김. 글래스/홀로그래픽 구체 스타일 (ai1, ai2, ai3 레퍼런스 기반). 계속 애니메이션. | `size`, `mode`, `loading` |
+| `MemoInput` | Welcome 모드: 중앙 배치, max-width 560px, 기본 스타일. Chat 모드: 패널 100% 전체 폭, 좌우=하단=20px 여백, 진한 border + shadow. Enter 전송(입력창 초기화), Shift+Enter 줄바꿈. 전송 버튼 우측 하단 내장. | `value`, `onChange`, `loading`, `className` |
+| `PlaylistGrid` | Chat 모드에서 인라인 스크롤. 상단 border로 리스트 시작, 각 항목 사이 하단 border 구분선. | `playlists`, `onPlay`, `currentId` |
+| `PlaylistCard` | 플랫 라인 리스트 스타일. 썸네일(46px) + 제목/아티스트 + 재생 아이콘. 선택 시 좌측 2px 보라색 bar + 옅은 배경. 카드 테두리/그림자 없음. | `title`, `artist`, `tags[]`, `artworkUrl?`, `previewUrl?`, `platform`, `reason`, `isPlaying`, `onPlay` |
+| `NowPlayingBanner` | AppShell에서 렌더링. 콘텐츠 상단 고정. 디지털 다크 배경(#07050E) + Hot-temperature glow 파동(yellow→orange→crimson). overlay/gradient shadow 없음. 파동은 박스 정중앙에 배치. 재생 중 파동 좌→우 이동, 일시정지 시 멈춤. | `playlist`, `trackIndex`, `isPaused`, `onStop`, `onPrev`, `onNext`, `onVolumeChange` |
 | `VibeTagList` | 분위기 태그 뱃지 목록 | `tags[]` |
 | `ErrorBanner` | API 오류 메시지 + 재시도 | `message`, `onRetry` |
-
----
-
-### 아카이브 화면 (Archive)
-
-| 컴포넌트 | 설명 | Props |
-|----------|------|-------|
-| `ArchiveScreen` | 아카이브 화면 컨테이너 | — |
-| `ArchiveList` | 날짜별 기록 목록 | `entries[]` |
-| `ArchiveItem` | 리스트 단일 항목 (날짜 + 메모 요약) | `date`, `memoPreview`, `playlistCount`, `onClick` |
 
 ---
 
@@ -132,11 +103,8 @@ loading → error  ← 에러 메시지 + 재시도 버튼
 
 | 컴포넌트 | 설명 | Props |
 |----------|------|-------|
-| `DetailScreen` | 기록 상세 화면 컨테이너 | `entryDate` |
-| `DetailHeader` | 날짜 + 뒤로가기 버튼 | `date`, `onBack` |
-| `MemoDisplay` | 저장된 메모 전문 표시 | `memo` |
-| `SavedPlaylistList` | 저장된 추천 목록 | `playlists[]` |
-| `PlaylistLinkButton` | 외부 재생 링크 버튼 | `url`, `platform` |
+| `DetailScreen` | 에디토리얼 스타일 상세 화면. 이전 버튼 없음. 날짜+요일 헤더 → 인용 스타일 메모 → PlaylistGrid. key = sessionId ?? date. | `date` (실제로는 sessionId ?? date 키값) |
+| `PlaylistGrid` | 저장된 추천 목록 (미리듣기 포함) | `playlists`, `onPlay`, `currentId` |
 
 ---
 
@@ -146,19 +114,23 @@ loading → error  ← 에러 메시지 + 재시도 버튼
 // 플레이리스트 단일 항목
 interface Playlist {
   id: string;
-  title: string;
-  tags: string[];          // 분위기 태그 (예: ["집중", "로파이", "잔잔함"])
-  url: string;             // Spotify / YouTube 링크
-  platform: "spotify" | "youtube" | "other";
-  reason: string;          // AI가 이 플레이리스트를 추천한 이유 (1줄)
+  title: string;            // 앨범 이름
+  artist: string;           // 아티스트 이름
+  tags: string[];           // 분위기 태그 (예: ["집중", "로파이", "잔잔함"])
+  platform: "itunes";
+  reason: string;           // AI가 이 앨범을 추천한 이유 (1줄)
+  // iTunes Search API로 보강되는 필드
+  artworkUrl?: string;      // 앨범 커버 이미지 URL (500x500)
+  previewUrl?: string;      // 30초 미리듣기 MP3 URL
+  itunesUrl?: string;       // Apple Music 앨범 링크
 }
 
 // 하루 기록 단위
 interface DayEntry {
-  date: string;            // "2026-06-19" (YYYY-MM-DD)
-  memo: string;            // 사용자 입력 메모
-  playlists: Playlist[];   // 추천 플레이리스트 목록
-  savedAt: string;         // ISO timestamp
+  date: string;             // "2026-06-19" (YYYY-MM-DD)
+  memo: string;             // 사용자 입력 메모
+  playlists: Playlist[];    // 추천 앨범 목록
+  savedAt: string;          // ISO timestamp
 }
 
 // localStorage 키: "vibe_entries"
@@ -174,117 +146,77 @@ interface DayEntry {
 | 항목 | 내용 |
 |------|------|
 | **엔드포인트** | `POST https://api.anthropic.com/v1/messages` |
-| **SDK** | `@anthropic-ai/sdk` (TypeScript) |
-| **모델** | `claude-haiku-4-5` (빠른 응답, 비용 효율적) |
-| **호출 시점** | 메모 입력 후 타이핑 멈춤 (debounce 1.5초, 최소 10자) |
+| **SDK** | `@anthropic-ai/sdk` |
+| **모델** | `claude-haiku-4-5` |
+| **호출 시점** | Enter 키 또는 "추천 받기" 버튼 클릭 (최소 10자) |
 | **입력** | 사용자 메모 텍스트 |
-| **출력** | 3–5개의 플레이리스트 JSON 배열 |
+| **출력** | 15-20개의 앨범 JSON 배열 (title, artist, tags, platform, reason) |
 
 #### 요청 구조
 
-```typescript
-import Anthropic from "@anthropic-ai/sdk";
+```js
+const SYSTEM_PROMPT = `당신은 음악 큐레이터입니다.
+사용자의 오늘 아침 기분과 일정을 읽고, 그 바이브에 맞는 앨범을 15-20개 추천하세요.
 
-const client = new Anthropic({
-  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY,
-});
-
-async function getPlaylistRecommendations(memo: string): Promise<Playlist[]> {
-  const response = await client.messages.create({
-    model: "claude-haiku-4-5",
-    max_tokens: 1024,
-    system: `당신은 음악 플레이리스트 큐레이터입니다.
-사용자가 오늘 아침의 기분과 일정을 텍스트로 남기면,
-그 바이브에 맞는 플레이리스트를 3–5개 추천해주세요.
-
-반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트는 포함하지 마세요.
+반드시 아래 JSON 배열 형식으로만 응답하세요. 마크다운 코드블록 없이, 순수 JSON 배열만.
 [
   {
-    "title": "플레이리스트 이름",
+    "title": "앨범 이름",
+    "artist": "아티스트 이름",
     "tags": ["태그1", "태그2"],
-    "url": "https://open.spotify.com/... 또는 https://youtube.com/...",
-    "platform": "spotify 또는 youtube",
-    "reason": "이 플레이리스트를 추천하는 이유 한 줄"
+    "platform": "itunes",
+    "reason": "오늘 메모와 연결된 추천 이유 한 문장"
   }
-]
-
-규칙:
-- tags는 분위기를 나타내는 한국어 단어 2–3개 (예: "집중", "잔잔함", "에너지업")
-- url은 실제 존재하는 Spotify 플레이리스트 또는 YouTube 링크
-- reason은 사용자의 오늘 메모와 연결된 이유
-- 응답은 JSON 배열만, 마크다운 코드블록 없이`,
-    messages: [
-      {
-        role: "user",
-        content: `오늘의 바이브 메모: "${memo}"`,
-      },
-    ],
-  });
-
-  const text = response.content[0].type === "text" ? response.content[0].text : "";
-  const parsed: Omit<Playlist, "id">[] = JSON.parse(text);
-
-  return parsed.map((p, i) => ({
-    ...p,
-    id: `${Date.now()}-${i}`,
-  }));
-}
-```
-
-#### 에러 처리
-
-```typescript
-import Anthropic from "@anthropic-ai/sdk";
-
-try {
-  const playlists = await getPlaylistRecommendations(memo);
-} catch (error) {
-  if (error instanceof Anthropic.RateLimitError) {
-    // "요청이 너무 많아요. 잠시 후 다시 시도해주세요."
-  } else if (error instanceof Anthropic.AuthenticationError) {
-    // "API 키를 확인해주세요."
-  } else if (error instanceof Anthropic.APIError) {
-    // "추천을 불러오지 못했어요. 다시 시도해주세요."
-  } else if (error instanceof SyntaxError) {
-    // JSON 파싱 실패 → "추천 데이터 형식이 올바르지 않아요."
-  }
-}
+]`
 ```
 
 ---
 
-### 5-2. localStorage API (내부)
+### 5-2. iTunes Search API (앨범 보강)
+
+| 항목 | 내용 |
+|------|------|
+| **엔드포인트** | `GET https://itunes.apple.com/search` |
+| **인증** | 불필요 (무료 공개 API) |
+| **호출 시점** | Claude 추천 완료 직후, 각 앨범별 1회 |
+| **입력** | `term={title}+{artist}&entity=musicTrack&country=kr&limit=1` |
+| **출력** | `artworkUrl100` (커버), `previewUrl` (30초 MP3), `collectionViewUrl` |
+
+#### 처리 흐름
+
+```
+Claude 추천 결과 (title + artist) 배열
+    │
+    ▼ Promise.all — 병렬 요청
+iTunes Search API × N개
+    │
+    ▼
+각 앨범에 artworkUrl + previewUrl + itunesUrl merge
+    │
+    ▼
+PlaylistGrid 인라인 렌더링
+```
+
+#### artworkUrl 해상도 변환
+
+```js
+// artworkUrl100 → 500x500으로 교체
+artwork.replace('100x100bb', '500x500bb')
+```
+
+---
+
+### 5-3. localStorage API (내부)
 
 | 함수 | 설명 | 인자 | 반환 |
 |------|------|------|------|
 | `saveEntry(entry)` | 하루 기록 저장 (같은 날이면 덮어씀) | `DayEntry` | `void` |
 | `getEntries()` | 전체 기록 조회 (날짜 역순) | — | `DayEntry[]` |
-| `getEntry(date)` | 특정 날짜 기록 조회 | `string` (YYYY-MM-DD) | `DayEntry \| null` |
-| `deleteEntry(date)` | 특정 날짜 기록 삭제 | `string` | `void` |
+| `getEntry(date)` | 특정 날짜 기록 조회 | `string` | `DayEntry \| null` |
 
-```typescript
-const STORAGE_KEY = "vibe_entries";
+> **히스토리 반응성**: `entries` 상태는 `AppContext`에서 관리. `addEntry(entry)` 호출 시 localStorage 쓰기 + React 상태 동기화가 동시에 발생. SideNav는 context의 `entries`를 직접 구독하여 즉시 반응함.
 
-export function saveEntry(entry: DayEntry): void {
-  const entries = getEntries();
-  const idx = entries.findIndex((e) => e.date === entry.date);
-  if (idx !== -1) {
-    entries[idx] = entry;
-  } else {
-    entries.unshift(entry);
-  }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-}
-
-export function getEntries(): DayEntry[] {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-
-export function getEntry(date: string): DayEntry | null {
-  return getEntries().find((e) => e.date === date) ?? null;
-}
-```
+> **히스토리 제목**: Claude가 `summary` 필드로 사용자의 기분/일정 메모를 10글자 이내로 요약하여 반환. `entry.title`에 저장되고 SideNav에 표시됨. (예: "집중이 필요한 오전")
 
 ---
 
@@ -302,32 +234,71 @@ VITE_ANTHROPIC_API_KEY=sk-ant-...
 
 ## 7. 화면별 상태 정리
 
-### 홈 화면
+### 홈 화면 (Welcome 모드)
 
 | 상태 | 표시 요소 |
 |------|-----------|
-| 초기 (메모 없음) | DateBadge + MemoInput(빈 값, 안내 placeholder) |
-| 타이핑 중 | MemoInput(내용 입력 중) |
-| 자동 추천 대기 (debounce) | MemoInput + RecommendingIndicator(점멸 표시) |
-| 로딩 중 | MemoInput + RecommendingIndicator(로딩) |
-| 추천 완료 | MemoInput + PlaylistGrid |
-| 카드 클릭 후 자동 저장 | Toast ("기록됐어요!") + 외부 링크 열림 |
+| 초기 | AiOrb(80px, 중앙) + "오늘 하루는 어떤가요?" + 부제 + 중앙 입력창 |
+| 로딩 중 | AiOrb(80px, loading 상태 pulse) + "…" 버튼 비활성 |
 | 에러 | ErrorBanner + 재시도 버튼 |
-| 당일 기록 있음 (재진입) | 기존 메모 + 기존 추천 목록 복원 |
 
-### 아카이브 화면
+### 홈 화면 (Chat 모드)
 
 | 상태 | 표시 요소 |
 |------|-----------|
-| 기록 있음 | ArchiveList (날짜 역순) |
-| 기록 없음 | EmptyState ("아직 기록이 없어요. 오늘 바이브를 남겨보세요!") |
+| 로딩 중 | 유저 버블 + AI 타이핑 버블(점3개) |
+| 추천 완료 | 유저 버블 + "오늘 바이브에 맞는 앨범이에요" + 인라인 PlaylistGrid |
+| 재생 중 | NowPlayingBanner(상단 고정, 트랙별 배경 애니메이션) + 목록 스크롤 |
+| 하단 입력창 | 항상 고정. 새 메모 입력 → 재추천 가능 |
 
 ---
 
 ## 8. 내비게이션 구조
 
 ```
-/ (홈)          → HomeScreen
-/archive        → ArchiveScreen
-/archive/:date  → DetailScreen
+좌측 SideNav:
+  - "새 뮤직리스트" → HomeScreen 리셋 (homeKey 증가)
+  - 히스토리 항목 클릭 → DetailScreen(date)
+
+우측 콘텐츠:
+  AppShell: NowPlayingBanner (재생 중에만 표시) + children
+
+view.screen === 'home'    → HomeScreen
+view.screen === 'detail'  → DetailScreen (date prop)
+ArchiveScreen 제거 (히스토리는 SideNav에서 처리)
 ```
+
+> 라우터 없음. AppContext의 view 상태 + homeKey로 화면 전환.
+> audio 상태는 AppContext에서 전역 관리.
+
+---
+
+## 9. 레이아웃 패널 스펙
+
+| 패널 | 배경 | 구분 |
+|------|------|------|
+| 좌측 SideNav (240px) | #F4F3F8 (옅은 grey) | 우측 box-shadow (wide, soft) |
+| 우측 콘텐츠 패널 | #FFFFFF (white) | — |
+
+### SideNav 세부
+- 히스토리 제목: `var(--text-primary)` (진한 색)
+- "새 뮤직리스트" 버튼 border: `rgba(0,0,0,0.18)` (진함)
+
+### Chat 모드 하단 입력창
+- 패널 전체 폭 (max-width 없음), 좌우=하단=20px 여백
+- 배경: #fff, border-top: 얇은 구분선
+- textarea: border `rgba(0,0,0,0.15)` + 부드러운 box-shadow
+
+### 뮤직 리스트 (PlaylistGrid + PlaylistCard)
+- 플랫 라인 스타일: 카드 없음, border-radius 없음, shadow 없음
+- 구분선: 상단 border + 각 항목 하단 border (1px, rgba(0,0,0,0.1) — 약간 진하게)
+- 재생 중 표시: 좌측 2px 보라색 bar + 옅은 라벤더 배경 tint
+
+### 전송 / 중단 버튼
+- 기본 상태: 다크 원형 버튼 ↑
+- 로딩 중: 회색(#8A8A9E) 원형 ■ stop 버튼으로 전환. disabled 해제 (클릭 가능)
+- 클릭: AbortController.abort() → 즉시 취소, AI 질문 버블 표시
+
+### 채팅 버블 색상
+- 유저 버블: linear-gradient(135deg, #EDEAF2, #E4E1EE) — 퍼플 섞인 그레이
+- 텍스트: #3A3552 (다크 퍼플-그레이)
