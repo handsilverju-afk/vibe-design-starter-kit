@@ -260,18 +260,25 @@ chatInput container padding: 16px 20px 28px
   구분선: border-bottom 1px solid var(--border)
   패딩: 12px 16px
   썸네일: 46px × 46px, border-radius 8px
+  썸네일 오버레이: 제거됨 (thumbOverlay 삭제)
 
 hover: background rgba(0,0,0,0.025)
 
-재생 중:
-  border-left: 없음 (삭제 — hover 시 보라색 bar 제거)
+Props 상태 분리:
+  isActive  = currentId === p.id          → 카드 선택 스타일 (배경 tint, playBtnActive)
+  isPlaying = currentId === p.id && !isPaused → 버튼 아이콘만 (▶/■)
+
+선택(isActive):
+  border-left: 없음
   background: rgba(139,122,238,0.05) (옅은 라벤더 tint)
+  일시정지 중에도 선택 상태 유지
 
 플레이/스탑 버튼 (오른쪽):
   라인 타입 원형 버튼: width/height 28px, border-radius 50%
   border: 1.5px solid rgba(0,0,0,0.18) (기본)
   font-size: 10px, color: var(--text-secondary)
-  재생 중: border-color var(--accent), color var(--accent)
+  선택 중(isActive): border-color var(--accent), color var(--accent)
+  아이콘: isPlaying ? ■ : ▶
 
 PlaylistGrid:
   gap: 0

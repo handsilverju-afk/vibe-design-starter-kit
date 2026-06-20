@@ -161,6 +161,7 @@ export function HomeScreen() {
                   playlists={playlists}
                   onPlay={handlePlay}
                   currentId={audio.currentId}
+                  isPaused={audio.isPaused}
                 />
               </div>
             )}

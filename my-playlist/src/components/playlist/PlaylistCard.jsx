@@ -1,10 +1,10 @@
 import { VibeTagList } from '../ui/VibeTagList'
 import styles from './PlaylistCard.module.css'
 
-export function PlaylistCard({ title, artist, tags, artworkUrl, previewUrl, platform, reason, isPlaying, onPlay }) {
+export function PlaylistCard({ title, artist, tags, artworkUrl, previewUrl, platform, reason, isActive, isPlaying, onPlay }) {
   return (
     <button
-      className={`${styles.item} ${isPlaying ? styles.playing : ''}`}
+      className={`${styles.item} ${isActive ? styles.playing : ''}`}
       onClick={onPlay}
     >
       <div className={styles.thumb}>
@@ -12,14 +12,13 @@ export function PlaylistCard({ title, artist, tags, artworkUrl, previewUrl, plat
           ? <img src={artworkUrl} alt={title} className={styles.thumbImg} />
           : <div className={styles.thumbFallback}>🎵</div>
         }
-        {isPlaying && <div className={styles.thumbOverlay}>■</div>}
       </div>
       <div className={styles.info}>
         <span className={styles.title}>{title}</span>
         {artist && <span className={styles.artist}>{artist}</span>}
         <VibeTagList tags={tags} />
       </div>
-      <span className={`${styles.playBtn} ${isPlaying ? styles.playBtnActive : ''}`}>
+      <span className={`${styles.playBtn} ${isActive ? styles.playBtnActive : ''}`}>
         {isPlaying ? '■' : '▶'}
       </span>
     </button>

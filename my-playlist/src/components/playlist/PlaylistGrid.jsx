@@ -1,7 +1,7 @@
 import { PlaylistCard } from './PlaylistCard'
 import styles from './PlaylistGrid.module.css'
 
-export function PlaylistGrid({ playlists, onPlay, currentId }) {
+export function PlaylistGrid({ playlists, onPlay, currentId, isPaused }) {
   return (
     <ul className={styles.grid}>
       {playlists.map(p => (
@@ -14,7 +14,8 @@ export function PlaylistGrid({ playlists, onPlay, currentId }) {
             previewUrl={p.previewUrl}
             platform={p.platform}
             reason={p.reason}
-            isPlaying={currentId === p.id}
+            isActive={currentId === p.id}
+            isPlaying={currentId === p.id && !isPaused}
             onPlay={() => onPlay(p)}
           />
         </li>

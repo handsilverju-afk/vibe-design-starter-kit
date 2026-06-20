@@ -10,7 +10,7 @@
 | S3-1 | **자동재생** | 추천 목록 수신 완료 시 | previewUrl이 있는 트랙만 필터링 후 첫 번째 트랙 자동 재생. NowPlayingBanner 즉시 표시. 토스트 "기록됐어요!" |
 | S4 | **추천 중 로딩** | 전송 후 | Chat 모드로 전환, 유저 버블 + AI 타이핑 버블. 입력창 버튼이 **다크(#18172B) ■ stop 버튼**으로 변경. 이전 목록이 있으면 함께 표시. |
 | S4-1 | **추천 중단** | stop 버튼 클릭 | 작업 즉시 중단. AI 질문 버블 노출: "오늘 기분이 어떤지, 어떤 일정이 있으신지 조금 더 알려주시면…" 입력창 계속 활성 상태. |
-| S5 | **앨범 수동 재생** | 앨범 항목 클릭 | 해당 트랙으로 전환 재생 (toggle). 목록 내 모든 트랙은 previewUrl 보장. |
+| S5 | **앨범 수동 재생/일시정지** | 앨범 항목 클릭 | 해당 트랙으로 전환 재생 (toggle). 재생 중 클릭 시 일시정지, 일시정지 중 클릭 시 재개. 선택된 카드(isActive)는 재생/정지 상태 무관하게 하이라이트 유지. 오른쪽 버튼만 ▶/■ 전환. |
 | S5-1 | **루프 재생** | 기본 ON / NowPlayingBanner 반복 버튼으로 토글 | 마지막 트랙 종료 시 첫 트랙부터 자동 재시작. **기본값: 루프 ON**. 버튼 퍼플 하이라이트로 활성 표시. 루프 OFF 시 마지막 트랙에서 일시정지 — NowPlayingBanner는 계속 표시. |
 | S5-2 | **NowPlayingBanner 유지 조건** | stop·pause·루프 OFF 마지막 곡 종료 (홈/Chat 화면 내) | 배너 유지. 마지막 트랙 정보 표시. "새 뮤직 리스트" 클릭 또는 히스토리 클릭 시에만 배너 제거. |
 | S6 | **재추천** | Chat 모드에서 하단 입력창으로 새 메모 입력 후 전송 | 동일 화면에서 새 추천 목록으로 갱신 + 새 목록 자동재생 |
@@ -95,7 +95,7 @@ Welcome 모드 (reset)
 | `AiOrb` | Welcome 모드에서만 80px 중앙 표시. Chat 모드에서 숨김. 글래스/홀로그래픽 구체 스타일 (ai1, ai2, ai3 레퍼런스 기반). 계속 애니메이션. | `size`, `mode`, `loading` |
 | `MemoInput` | Welcome 모드: 중앙 배치, max-width 560px, 기본 스타일. Chat 모드: 패널 100% 전체 폭, 좌우=하단=20px 여백, 진한 border + shadow. Enter 전송(입력창 초기화), Shift+Enter 줄바꿈. 전송 버튼 우측 하단 내장. | `value`, `onChange`, `loading`, `className` |
 | `PlaylistGrid` | Chat 모드에서 인라인 스크롤. 상단 border로 리스트 시작, 각 항목 사이 하단 border 구분선. | `playlists`, `onPlay`, `currentId` |
-| `PlaylistCard` | 플랫 라인 리스트 스타일. 썸네일(46px) + 제목/아티스트 + 재생 아이콘. 선택 시 좌측 2px 보라색 bar + 옅은 배경. 카드 테두리/그림자 없음. | `title`, `artist`, `tags[]`, `artworkUrl?`, `previewUrl?`, `platform`, `reason`, `isPlaying`, `onPlay` |
+| `PlaylistCard` | 플랫 라인 리스트 스타일. 썸네일(46px) + 제목/아티스트 + 재생 아이콘. 선택 시 옅은 배경. 카드 테두리/그림자 없음. 썸네일 오버레이 없음. | `title`, `artist`, `tags[]`, `artworkUrl?`, `previewUrl?`, `platform`, `reason`, `isActive`, `isPlaying`, `onPlay` |
 | `NowPlayingBanner` | AppShell에서 렌더링. 콘텐츠 상단 고정. 디지털 다크 배경(#07050E) + Hot-temperature glow 파동(yellow→orange→crimson). overlay/gradient shadow 없음. 파동은 박스 정중앙에 배치. 재생 중 파동 좌→우 이동, 일시정지 시 멈춤. | `playlist`, `trackIndex`, `isPaused`, `onStop`, `onPrev`, `onNext`, `onVolumeChange` |
 | `VibeTagList` | 분위기 태그 뱃지 목록 | `tags[]` |
 | `ErrorBanner` | API 오류 메시지 + 재시도 | `message`, `onRetry` |
@@ -313,6 +313,7 @@ ArchiveScreen 제거 (히스토리는 SideNav에서 처리)
 ### 스크롤바
 - 전체 패널: webkit-scrollbar width 3px, track 투명
 - thumb: 기본 투명 (숨김) → 컨테이너 hover 시 `rgba(0,0,0,0.13)` 표시, thumb hover 시 0.22
+- **Chat 모드 chatContent**: 스크롤바 완전 숨김 (`scrollbar-width: none` + `::-webkit-scrollbar { display: none }`). 스크롤 기능은 유지.
 
 ### 뮤직 리스트 (PlaylistGrid + PlaylistCard)
 - 플랫 라인 스타일: 카드 없음, border-radius 없음, shadow 없음
