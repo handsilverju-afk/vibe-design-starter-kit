@@ -1,16 +1,22 @@
 import { useApp } from '../../context/AppContext'
 import styles from './SideNav.module.css'
 
-function formatHistoryDate(dateStr) {
+function formatHistoryDate(dateStr, savedAt) {
   const today = new Date().toISOString().slice(0, 10)
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
-  if (dateStr === today) return '오늘'
-  if (dateStr === yesterday) return '어제'
-  return dateStr.slice(5).replace('-', '.')
+  if (dateStr === today) {
+    if (savedAt) {
+      const d = new Date(savedAt)
+      const h = String(d.getHours()).padStart(2, '0')
+      const m = String(d.getMinutes()).padStart(2, '0')
+      return `오늘 ${h}:${m}`
+    }
+    return '오늘'
+  }
+  return dateStr.replace(/-/g, '.')
 }
 
 export function SideNav() {
-  const { navigate, view, newPlaylist, entries } = useApp()
+  const { view, newPlaylist, openHistory, entries } = useApp()
 
   return (
     <nav className={styles.nav}>
@@ -20,7 +26,7 @@ export function SideNav() {
 
       <button className={styles.newBtn} onClick={newPlaylist}>
         <span className={styles.newIcon}>+</span>
-        새 뮤직리스트
+        새 뮤직 리스트
       </button>
 
       {entries.length > 0 && (
@@ -33,12 +39,12 @@ export function SideNav() {
                 <button
                   key={entryKey}
                   className={`${styles.historyItem} ${view.screen === 'detail' && view.date === entryKey ? styles.active : ''}`}
-                  onClick={() => navigate('detail', entryKey)}
+                  onClick={() => openHistory(entryKey)}
                 >
-                  <span className={styles.historyDate}>{formatHistoryDate(entry.date)}</span>
                   <span className={styles.historyTitle}>
                     {entry.title ?? entry.memo.slice(0, 24)}
                   </span>
+                  <span className={styles.historyDate}>{formatHistoryDate(entry.date, entry.savedAt)}</span>
                 </button>
               )
             })}

@@ -50,3 +50,10 @@ html, body {
 }
 
 button, textarea { font-family: inherit; }
+
+/* Thin scrollbar — hidden by default, visible on hover */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+*:hover::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.13); }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.22); }

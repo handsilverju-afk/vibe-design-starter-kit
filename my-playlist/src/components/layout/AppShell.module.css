@@ -19,6 +19,13 @@
   z-index: 1;
 }
 
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: #F4F3F8; border-radius: 3px; }
+.sidebar:hover::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.13); }
+.sidebar:hover::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.22); }
+.sidebar:focus-within::-webkit-scrollbar-thumb { background: #F4F3F8; }
+
 .main {
   flex: 1;
   min-width: 0;

@@ -1,9 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import { getRecommendations } from '../api/claude'
 import { enrichWithItunes } from '../lib/itunes'
 import { today } from '../lib/storage'
-import { DateBadge } from '../components/ui/DateBadge'
 import { MemoInput } from '../components/ui/MemoInput'
 import { RecommendingIndicator } from '../components/ui/RecommendingIndicator'
 import { ErrorBanner } from '../components/ui/ErrorBanner'
@@ -28,6 +27,15 @@ export function HomeScreen() {
 
   const isWelcome = !submittedMemo
 
+  // 추천 목록이 오면 자동재생 + 저장 (previewUrl 없는 항목은 이미 필터링됨)
+  useEffect(() => {
+    if (playlists.length > 0) {
+      audio.playAll(playlists)
+      addEntry({ sessionId, date, memo: submittedMemo, title: summary, playlists, savedAt: new Date().toISOString() })
+      showToast('기록됐어요!')
+    }
+  }, [playlists]) // eslint-disable-line react-hooks/exhaustive-deps
+
   async function fetchRecommendations(text) {
     const controller = new AbortController()
     abortRef.current = controller
@@ -39,7 +47,8 @@ export function HomeScreen() {
       const { summary: newSummary, albums } = await getRecommendations(text, controller.signal)
       setSummary(newSummary)
       const enriched = await enrichWithItunes(albums)
-      setPlaylists(enriched)
+      const playable = enriched.filter(p => p.previewUrl)
+      setPlaylists(playable)
       setStatus('ready')
     } catch (e) {
       const msg = e?.message ?? String(e)
@@ -79,20 +88,14 @@ export function HomeScreen() {
   }
 
   function handlePlay(playlist) {
-    if (playlists.some(p => p.previewUrl)) {
-      audio.toggle(playlist.id, playlists)
-    } else {
-      const query = encodeURIComponent(`${playlist.title} ${playlist.artist ?? ''}`.trim())
-      window.open(`https://music.apple.com/search?term=${query}`, '_blank')
-    }
-    addEntry({ sessionId, date, memo: submittedMemo, title: summary, playlists, savedAt: new Date().toISOString() })
-    showToast('기록됐어요!')
+    audio.toggle(playlist.id, playlists)
   }
 
   const isLoading = status === 'loading'
+  const isActive = !isLoading && memo.trim().length >= 10
   const sendBtn = (
     <button
-      className={`${styles.sendBtn} ${isLoading ? styles.stopBtn : ''}`}
+      className={`${styles.sendBtn} ${isLoading ? styles.stopBtn : isActive ? styles.activeBtn : ''}`}
       onClick={isLoading ? handleStop : handleSubmit}
       disabled={!isLoading && memo.trim().length < 10}
       aria-label={isLoading ? '중단' : '추천 받기'}
@@ -108,7 +111,7 @@ export function HomeScreen() {
           <AiOrb size={140} loading={status === 'loading'} />
           <div className={styles.welcomeText}>
             <p className={styles.greeting}>오늘 하루는 어떤가요?</p>
-            <p className={styles.hint}>기분이나 일정을 입력하면<br />바이브에 맞는 음악을 추천해드려요.</p>
+            <p className={styles.hint}>기분이나 일정을 입력하면 음악을 추천해드려요.</p>
           </div>
           <div className={styles.welcomeInput}>
             <div className={styles.inputWrap}>
@@ -128,7 +131,6 @@ export function HomeScreen() {
       ) : (
         <div className={styles.chatScreen}>
           <div className={styles.chatContent}>
-            <DateBadge date={date} />
 
             <div className={styles.userBubble}>
               <p className={styles.userText}>{submittedMemo}</p>

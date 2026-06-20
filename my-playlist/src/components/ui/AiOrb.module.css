@@ -8,11 +8,12 @@
 
 @keyframes nebulaMorph {
   0%, 100% { border-radius: 50% 50% 50% 50%; }
-  15%       { border-radius: 62% 38% 46% 54% / 44% 56% 44% 56%; }
-  30%       { border-radius: 38% 62% 60% 40% / 55% 45% 62% 38%; }
-  50%       { border-radius: 55% 45% 38% 62% / 46% 54% 60% 40%; }
-  68%       { border-radius: 44% 56% 56% 44% / 60% 40% 46% 54%; }
-  85%       { border-radius: 58% 42% 44% 56% / 40% 60% 52% 48%; }
+  14%       { border-radius: 70% 30% 40% 60% / 36% 64% 36% 64%; }
+  28%       { border-radius: 30% 70% 65% 35% / 60% 40% 68% 32%; }
+  42%       { border-radius: 58% 42% 28% 72% / 42% 58% 65% 35%; }
+  57%       { border-radius: 36% 64% 54% 46% / 65% 35% 40% 60%; }
+  71%       { border-radius: 54% 46% 70% 30% / 30% 70% 38% 62%; }
+  86%       { border-radius: 65% 35% 44% 56% / 50% 50% 60% 40%; }
 }
 
 @keyframes nebulaColorDrift {
@@ -45,59 +46,57 @@
   animation: nebulaFloat 7s ease-in-out infinite;
 }
 
-/* 대형 외부 헤일로 — 크고 흐릿한 빛 구름 */
+/* 외부 헤일로 — 면적 축소 */
 .orbWrap::before {
   content: '';
   position: absolute;
-  inset: -55%;
+  inset: -28%;
   border-radius: 50%;
   background:
-    radial-gradient(ellipse at 35% 38%, rgba(255,179,217,0.45) 0%, transparent 52%),
-    radial-gradient(ellipse at 64% 55%, rgba(100,200,255,0.52) 0%, transparent 52%),
-    radial-gradient(ellipse at 50% 50%, rgba(175,225,255,0.30) 0%, transparent 65%),
-    radial-gradient(ellipse at 50% 50%, rgba(196,181,253,0.18) 0%, transparent 68%);
-  filter: blur(22px);
+    radial-gradient(ellipse at 35% 38%, rgba(255,179,217,0.40) 0%, transparent 52%),
+    radial-gradient(ellipse at 64% 55%, rgba(100,200,255,0.46) 0%, transparent 52%),
+    radial-gradient(ellipse at 50% 50%, rgba(175,225,255,0.26) 0%, transparent 65%),
+    radial-gradient(ellipse at 50% 50%, rgba(196,181,253,0.14) 0%, transparent 68%);
+  filter: blur(14px);
   animation: outerHaloDrift 12s ease-in-out infinite;
   z-index: 0;
   pointer-events: none;
 }
 
-/* ── 메인 가스 구체 — 형태가 흐릿하고 경계 없음 ── */
+/* ── 메인 가스 구체 — 색 경계가 살아있는 플라즈마 ── */
 .orb {
   position: absolute;
   inset: 0;
   z-index: 1;
 
-  /* 다중 방향 가스 색채 */
   background:
-    radial-gradient(ellipse 85% 70% at 48% 55%, rgba(255,150,205,0.85) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 80% at 30% 42%, rgba(100,195,255,0.88) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 60% at 68% 25%, rgba(175,232,255,0.72) 0%, transparent 50%),
-    radial-gradient(ellipse 75% 65% at 65% 68%, rgba(200,172,255,0.50) 0%, transparent 52%),
-    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(140,185,245,0.35) 0%, transparent 72%);
+    radial-gradient(ellipse 78% 62% at 42% 52%, rgba(255,168,220,0.82) 0%, rgba(255,190,232,0.40) 45%, transparent 65%),
+    radial-gradient(ellipse 65% 80% at 24% 36%, rgba(50,180,255,0.80) 0%, rgba(100,200,255,0.38) 42%, transparent 62%),
+    radial-gradient(ellipse 55% 55% at 74% 20%, rgba(145,218,255,0.72) 0%, rgba(170,228,255,0.32) 38%, transparent 58%),
+    radial-gradient(ellipse 60% 50% at 30% 68%, rgba(48,205,172,0.62) 0%, rgba(70,215,185,0.26) 40%, transparent 60%),
+    radial-gradient(ellipse 70% 62% at 70% 74%, rgba(178,135,255,0.65) 0%, rgba(200,160,255,0.28) 40%, transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(70,155,225,0.28) 0%, transparent 72%);
 
-  /* blur 줄여서 더 선명하게 */
-  filter: blur(5px);
+  filter: blur(4px);
 
   animation:
     nebulaMorph 10s ease-in-out infinite,
     nebulaColorDrift 18s ease-in-out infinite;
 }
 
-/* 밝은 내부 핵 — 가스 구름의 중심 에너지 */
+/* 에너지 코어 — 구슬 스펙큘러 아님, 색조 에너지 스팟 */
 .orb::before {
   content: '';
   position: absolute;
-  inset: 12%;
+  inset: 15%;
   border-radius: 50%;
   background: radial-gradient(
-    circle at 50% 50%,
-    rgba(255,255,255,0.88)  0%,
-    rgba(210,242,255,0.55)  32%,
-    rgba(180,220,255,0.22)  62%,
-    transparent 78%
+    circle at 38% 35%,
+    rgba(255,255,255,0.75)  0%,
+    rgba(200,235,255,0.35)  30%,
+    transparent 58%
   );
-  filter: blur(3px);
+  filter: blur(4px);
   animation: coreGlow 4.5s ease-in-out infinite;
 }
 
@@ -107,7 +106,7 @@
 }
 
 .orbWrap.compact .orb {
-  filter: blur(5px);
+  filter: blur(4px);
 }
 
 /* ── loading 상태 — 더 빠르고 에너지 넘침 ── */

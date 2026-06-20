@@ -26,6 +26,10 @@ export function AppShell({ children }) {
             volume={audio.volume}
             onVolumeChange={audio.setVolume}
             trackIndex={audio.currentIndex}
+            loop={audio.loop}
+            onLoopToggle={() => audio.setLoop(!audio.loop)}
+            analyser={audio.analyserRef}
+            queueSeed={audio.queueSeed}
           />
         )}
         <div className={styles.content}>

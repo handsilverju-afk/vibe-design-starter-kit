@@ -135,6 +135,28 @@ Empty State 부제: 14px / --text-secondary
 
 ## 컴포넌트 스펙
 
+### 스크롤바
+```
+webkit-scrollbar: width 3px (항상 고정 — 레이아웃 shift 방지)
+track: transparent
+thumb (기본): 패널 배경색과 동일 (#F4F3F8 for sidebar) — 시각적 은폐
+  ※ transparent 미사용 — macOS에서 OS 레벨이 재정의하는 문제 방지
+thumb (hover): rgba(0,0,0,0.13), thumb:hover 시 rgba(0,0,0,0.22)
+border-radius: 3px
+좌측 사이드바: .sidebar::-webkit-scrollbar-thumb { background: #F4F3F8 } 로 직접 타겟
+```
+
+### DetailScreen (기록 상세 화면) 레이아웃
+```
+.screen: height 100%, overflow-y auto, background #fff
+.inner:  max-width 760px, margin 0 auto, width 100%
+  — 날짜 헤더, 인용 블록, 플레이리스트 모두 inner 컨테이너 안
+수평 패딩: 32px (chatContent 동일 → 뮤직 리스트 폭 일치)
+날짜 헤더: padding 28px 32px 20px
+인용 블록: padding 8px 32px 32px (상단 8px — 날짜↔따옴표 간격 최소화)
+플레이리스트: padding 0 32px 48px
+```
+
 ### AppShell
 ```
 좌측 SideNav:
@@ -165,69 +187,68 @@ Empty State 부제: 14px / --text-secondary
 
 구조: .orbWrap (float+rotate 애니메이션) + .orb (가스 구체) + ::before (핵 glow)
 
-.orbWrap::before — 대형 외부 헤일로
-  inset: -55% (구 바깥으로 크게 번지는 빛 구름)
-  4개 radial-gradient (pink / sky / sky-lite / lavender 미세)
-  filter: blur(22px)
-  animation: outerHaloDrift 12s ease-in-out infinite (scale + rotate)
+.orbWrap::before — 외부 헤일로
+  inset: -28%, filter: blur(14px)
+  4개 radial-gradient (pink / sky / sky-lite / lavender)
+  animation: outerHaloDrift 12s
 
 .orb — 메인 가스 구체
-  background: 5겹 radial-gradient (pink / sky / sky-lite / lavender / blue-base)
-  filter: blur(8px)  ← 핵심: heavy blur로 경계 완전 제거
-  animation:
-    nebulaMorph 10s — border-radius 극적 변형 (62% 38% 46% 54% / ... 등)
-    nebulaColorDrift 18s — 360도 회전 + scale 변화
+  filter: blur(4px) — 색 경계 부드럽되 구분 가능
+  6겹 radial-gradient: 0%→42% 점진적 fade → 60-65% transparent (soft stop)
+    pink:  rgba(255,168,220,0.82) — 소프트 핑크 (퍼플 인접색)
+    sky:   rgba(50,180,255,0.80)  — 블루
+    lite:  rgba(145,218,255,0.72) — 라이트 블루
+    teal:  rgba(48,205,172,0.62)  — 블루 믹스 그린 (블루·하늘색 사이 볼륨 보강, at 30% 68%)
+    purple: rgba(178,135,255,0.65)
+    base:  rgba(70,155,225,0.28)  — 블루 베이스
+  animation: nebulaMorph 10s + nebulaColorDrift 18s
 
-.orb::before — 내부 밝은 핵
-  inset: 12%, 50% 중앙
-  radial-gradient 흰색 → 스카이블루 tint → transparent
-  filter: blur(4px)
-  animation: coreGlow 4.5s (scale 0.85↔1.15, opacity 0.65↔1)
+.orb::before — 에너지 코어 (구슬 스펙큘러 아님)
+  inset: 15%, circle at 38% 35%
+  흰색(0.75) → 하늘색 tint(0.35) → transparent 58%
+  filter: blur(4px) — 색조 에너지 스팟, 유리 반사 아님
+  animation: coreGlow 4.5s
 
-compact 모드: 외부 헤일로 숨김, filter: blur(5px)
+nebulaMorph — 진폭 대폭 확대 (was 38–62% → now 28–72% 범위)
+  더 극적인 비구형 변형으로 자유분방한 플라즈마 느낌
+
+※ .orbWrap::after (유리 림) 제거 — 구슬 느낌 원인이었음
+
+compact 모드: 외부 헤일로 숨김, filter: blur(2px)
 loading 상태: float 2.5s + pulse 1.4s 동시, morph 2.8s (빠름), core 1.2s
-```
-
-### MemoInput (채팅 입력창) — 기본 스타일 업데이트
-```
-Welcome 모드 (기본):
-  border: 1px solid rgba(0,0,0,0.13) (강화)
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)
-  border-radius: 16px
-
-Chat 모드 (.chatTextarea className):
-  border: 1px solid rgba(0,0,0,0.15) + 더 강한 shadow
 ```
 
 ### MemoInput (채팅 입력창)
 ```
-Welcome 모드 (기본):
-  배경: #FFFFFF
-  테두리: 1px solid var(--border) (옅음)
+공통 (Welcome·Chat 모드 동일 컴포넌트):
+  min-height: 100px (기본 시작 높이)
+  max-height: 360px (내용에 따라 자동 확장)
+  auto-resize: useEffect로 scrollHeight 감지 → style.height 동적 조정
   border-radius: 16px
-  max-width: 560px, 중앙 배치
-
-Chat 모드 (.chatTextarea className):
-  패널 전체 폭 (max-width 없음), 좌우=하단=20px 여백
-  테두리: 1px solid rgba(0,0,0,0.15) (더 진함)
-  box-shadow: 0 2px 16px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04)
-  배경 white, border-top 구분선
-
-공통:
+  padding: 14px 56px 14px 16px (우측 버튼 영역 확보)
+  transition: height 0.1s ease (확장 시 부드럽게)
   포커스: border-color var(--accent), box-shadow 0 0 0 3px var(--accent-glow)
-  Enter: 전송 → 입력창 자동 초기화
+  Enter: 전송 → 입력창 자동 초기화 (height도 120px으로 리셋)
   Shift+Enter: 줄바꿈
-  props: value, onChange, loading, onKeyDown, className
+
+Welcome 모드: max-width 560px, 중앙 배치
+Chat 모드: inputWrap max-width 760px, margin 0 auto (chatContent와 정렬), 진한 border + shadow (.chatTextarea className)
 ```
 
 ### 전송 버튼 (채팅창 내장)
 ```
-위치: .inputWrap 기준 position: absolute, right: 10px, bottom: 10px
-배경: var(--btn-bg) = #18172B (다크)
-color: #FFFFFF
+위치: .inputWrap 기준 position: absolute, right: 14px, bottom: 14px
 크기: 34px 원형
-hover: scale(1.08)
-MemoInput 우측 패딩: 52px (버튼 영역 확보)
+
+상태별 컬러:
+  미입력 (disabled):  bg var(--btn-bg) = #18172B, opacity: 0.25
+  입력 활성 (active): bg var(--accent) = #8B7AEE (퍼플) ← .activeBtn
+  로딩/Stop 중:       bg var(--btn-bg) = #18172B (Vibe 텍스트와 동일 다크) ← .stopBtn
+                      아이콘: ■, font-size: 13px
+
+MemoInput 내부 패딩: 14px 56px 14px 16px (버튼 영역 확보, 넉넉한 공간감)
+chat 모드 rows: 6 (welcome 모드: 2)
+chatInput container padding: 16px 20px 28px
 ```
 
 ### PlaylistCard (리스트 항목)
@@ -263,19 +284,26 @@ width: 240px
 background: #F4F3F8 (옅은 grey — AppShell에서 지정)
 shadow로 우측 패널과 시각적 구분 (border-right 없음)
 
-로고: "Vibe" 18px weight 600 — <button> 요소, 클릭 시 newPlaylist() 호출 (첫화면 복귀)
+로고: "Vibe" 20px weight 600 letter-spacing 0.06em — <button> 요소, 클릭 시 newPlaylist() 호출 (첫화면 복귀)
   hover: opacity 0.65 트랜지션
+  로고 하단 패딩: 14px (버튼과의 간격 축소)
 
-"새 뮤직리스트" 버튼:
-  border: 1px solid rgba(0,0,0,0.18) (진한 border)
+"새 뮤직 리스트" 버튼:
+  rest:  background #F9F8FC (패널 #F4F3F8보다 약간 밝은 라벤더-화이트)
+         border: 1px solid rgba(0,0,0,0.12)
+  hover: background #FBFAFE (rest보다 미세하게 밝게)
+         border-color: rgba(0,0,0,0.16) (아주 살짝 진하게)
+         box-shadow: 0 1px 3px rgba(0,0,0,0.05) (매우 약한 그림자)
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s
   border-radius: 10px
   font-size: 13px, weight 500
-  hover: surface-hover + card-shadow
+  아이콘: "+" 텍스트, 16px, color var(--text-primary) (폰트 색상과 동일)
+  gap: 7px (아이콘 ↔ 텍스트)
 
 히스토리 섹션 레이블: 10px, uppercase, text-muted
-히스토리 항목:
-  날짜: 10px, text-muted
-  제목: 12px, var(--text-primary) (진한 색), truncate
+히스토리 항목 (제목 → 날짜 순서):
+  제목: 13px, var(--text-primary) (진한 색), truncate — 상단
+  날짜: 10px, text-muted — 하단
   hover: surface-hover
   active: accent-glow background
 ```
@@ -283,69 +311,189 @@ shadow로 우측 패널과 시각적 구분 (border-right 없음)
 ### NowPlayingBanner — 공연장 미디어아트
 ```
 height: 280px
+진입 애니메이션: bannerSlideDown 0.42s cubic-bezier(0.22,1,0.36,1)
+  — 위에서 부드럽게 내려오며 opacity 0→1 전환 (spring 곡선)
 구현: Canvas API (requestAnimationFrame) 기반 제너레이티브 아트
-비전: 공연장 미디어 설치 아트. 검정 배경 지양, 컬러·그라데이션 중심.
-     음악 태그에 따라 씬이 자동 전환되고 빠른/느린 음악 분위기가 시각적으로 반영됨.
+비전: 뉴욕 미디어 아티스트 레벨. Refik Anadol의 데이터 페인팅, Lissajous 수학 예술,
+     Perlin noise flow field 기법을 Canvas 2D로 구현. 가산 블렌딩(lighter)으로
+     파티클이 겹칠수록 발광하는 고급 질감.
 
-── 씬 감지 로직 ──────────────────────────────────────
-  playlist.tags 배열 기반:
-  에너지|드라이브|파워|업템포|신나|강렬  → electric
-  집중|로파이|작업|차분|미니멀           → lofi
-  새벽|몽환|우주|신비|꿈|심연            → cosmic
-  팝|댄스|축제|경쾌|비트                 → pulse
-  힐링|잔잔|평화|자연|감성|포근|따뜻     → aurora
-  fallback: trackIndex % 5 순환
+── BPM 추론 시스템 ────────────────────────────────────
+  inferBPM(tags, title): 장르 태그 / 제목 키워드로 BPM 추론
+    EDM/테크노 → 134, 트랩/힙합 → 88, 재즈/로파이 → 96, 록 → 130
+    발라드/포크 → 76, 소울/R&B → 102, 신스/레트로 → 120, 팝/인디 → 116, 기본값 → 108
+  
+  speedMult = bpm / 108 (기준값 108 BPM 기준 비율)
+    → 빠른 곡(EDM 134): sp × 1.24 / 느린 곡(발라드 76): sp × 0.70
+  
+  colorSeed = (trackIndex × 73 + floor(bpm/10)) % 360
+    → 모든 씬의 기준 hue 오프셋. 곡이 바뀌면 반드시 다른 색상.
+  
+  useEffect 의존성: [sceneId, speedMult, colorSeed]
+    → 곡 변경 시 sceneId 또는 colorSeed 변화 → 씬 반드시 재초기화
 
-── 씬 목록 ────────────────────────────────────────────
+── 씬 감지 규칙 ──────────────────────────────────────
+  playlist.tags 기반 매칭 → (base + idx*4 + cycleShift) % 11 오프셋 보장
+  → 곱수 4 (gcd(4,11)=1): 11트랙 내 연속 중복 없음
+  → cycleShift = floor(idx/11) * 3: 11트랙 초과 시 시작점 이동으로 반복 체감 감소
 
-aurora (힐링/잔잔):
-  배경: 딥 틸-인디고 다크 (#04101e → #100820)
-  요소: 흐르는 오로라 밴드 4개 (sin-wave path, filled gradient),
-        부유하는 소프트 orb 7개, 중앙 인간 형상 빛 실루엣 (희미한 타원 3개)
-  컬러: 틸(#00DCB4), 로즈(#FF64A0), 민트(#6EE7B7), 라벤더(#C8AAFF)
-  속도: 매우 느림 (play 0.70, pause 0.08)
+  전자|일렉|EDM|클럽|ambient  → FLOW
+  소울|R&B|부드|팝             → SILK
+  인디|밝|청량|화사             → PRISM
+  재즈|로파이|카페|잔잔         → GARDEN (씬키: 'pop')
+  힙합|랩|트랩|다크             → VOID
+  신스|레트로|사이버|네온       → SIGNAL
+  어쿠|포크|자연|힐링           → BLOOM
+  열정|강렬|파워|드라이브       → EMBER
+  우주|새벽|몽환|신비           → COSMOS
+  댄스|케이팝|K팝|파티|걸그룹  → DANCER
+  시티팝|야경|쇼와              → RISO
 
-electric (에너지/드라이브):
-  배경: 어두운 인디고-퍼플, 모션블러 페이드 (rgba(5,0,18,0.22))
-  요소: 220 파티클 (중앙→방사, 12프레임 트레일),
-        확장 ring (emit 간격 12-34f), 번개 streaks (random 2.5%)
-  컬러: 시안·마젠타·핫핑크·네온옐로우 전 스펙트럼 (hue 160-400)
-  속도: 빠름 (play 1.00, pause 0.10)
+── 씬 목록 (총 11종) ──────────────────────────────────
 
-cosmic (몽환/새벽):
-  배경: 딥 스페이스 (#160a30 → #030110), 라디얼 그라디언트
-  요소: 별 220개 (twinkle sin), 성운 2개 (slow drift rotate),
-        슈팅스타 (70-120f 간격 랜덤), 중앙 은하 코어 glow
-  컬러: 미드나잇 블루, 딥 바이올렛(hsl 255), 골드-화이트 별빛
-  속도: 느림 (play 0.65, pause 0.08)
+FLOW (데이터 페인팅 / Refik Anadol):
+  기법: Perlin-like flow field, 1800 파티클 트레일 누적
+  특징: 파티클이 흐르며 남기는 발광 궤적이 캔버스에 축적 — 살아있는 그림
+  블렌딩: globalCompositeOperation = 'lighter' (가산)
+  팔레트: 시간에 따라 hue 회전, 청록-바이올렛-마젠타 계열
 
-lofi (집중/로파이):
-  배경: 웜 앰버 그라디언트 (#280e04 → #180d1c)
-  요소: 중앙 방사 동심 vinyl ring (0.5-0.95spd),
-        회전하는 턴테이블 레이블 (32px 원형), 정적 필름 그레인 오버레이
-  컬러: 웜 앰버(rgba 215,125,45), 더스티 로즈(175,95,155)
-  속도: 느림 (play 0.55, pause 0.08)
+SILK (이리데센트 직물):
+  기법: 50×24 격자 메시, 각 점 sin 변위, 표면 각도로 무지개빛 결정
+  특징: 실제 천 표면처럼 각도에 따라 색이 변함. 스펙큘러 하이라이트 이동.
+  팔레트: 각도 기반 hsla, 홀로그래픽 실크 느낌
 
-pulse (팝/댄스):
-  배경: hue 연속 시프트 다크 그라디언트 (0.28°/frame)
-  요소: 8방향 칼레이도스코프 다이아몬드 (6ring/arm, 38f 주기),
-        중앙 확장 링 3개 (hue-shifted)
-  컬러: 전 스펙트럼 순환 (hue shift)
-  속도: 빠름 (play 1.00, pause 0.10)
+PRISM (크리스탈 기하학):
+  기법: 7꼭짓점 다각형 + 크로마틱 어버레이션 + 회절 광선
+  특징: 프리즘이 회전하며 각 면에서 무지개 빛 분리, 꼭짓점에서 확산 광선
+  블렌딩: 'lighter' (엣지 글로우)
+  팔레트: 전 스펙트럼 순환
+  [변경] 꼭짓점 흰색 원 글린트 제거 — 엣지 글로우만 유지
 
-── 공통 규칙 ──────────────────────────────────────────
-  isPaused: 속도 파라미터 대폭 감소 (약 0.1-0.15)
-  트랙 변경: sceneId 변경 시 Canvas state 완전 초기화, 새 씬 즉시 시작
+GARDEN (마네 스타일 페인트 타일 + 꽃잎 버스트):
+  씬키: 'pop' (장르 매핑 동일), 뱃지 표시: 'GARDEN'
+  기법: 마네풍 사각 페인트 타일 70개 천천히 위로 상승 + 대규모 붉은 꽃잎 버스트 파티클
+  배경: 어두운 자연 톤 그라디언트 (sh = colorSeed*0.07+108 → 황록·올리브 계열)
+  페인트 타일: 22–90px 직사각형, ±0.14rad 회전, 녹색·황록·어스 톤 반투명
+               vy = -0.22~-0.64 (천천히 상승), 상단 이탈 시 하단 재진입
+  꽃잎 버스트:
+    수량: 45–80개 타원형 꽃잎이 한 번에 발사
+    위치: 각 꽃잎 x = W*(0.02–0.98) 독립 랜덤 → 캔버스 전체 폭 고르게 분포 (뭉침 없음)
+          y = H*(0.70–0.94) (하단에서 출발)
+    발사: vy = -(14~30) 빠른 상향, vx = ±1.1
+    물리: 중력 +0.062/frame (낮아서 긴 호 궤적), 공기 저항 vx *= 0.985
+    크기: r = 6–16px
+    수명: decay = 0.004–0.008 (천천히 페이드)
+    색상: hue 338–374° (진홍·크림슨·장밋빛 적색), 내부 밝은 하이라이트
+    주기: 160–340프레임 (~2.7–5.7초) — 여백 후 갑작스러운 터짐
+  BPM 연동: sp = 0.30 × speedMult
+  [교체 이력] Kusama 오브 → 4단계 시차 레이어 → 현재: 사각 페인트 타일 + 꽃잎 버스트
+
+VOID (블랙홀 / 암흑물질):
+  기법: 별들이 나선형으로 중심부로 빨려들어가는 중력 렌즈 효과
+  특징: 중심 30px 완전 블랙홀, 주변 퍼플 발광, 별 굴절(gravity lensing)
+  팔레트: 딥 퍼플-블랙, 블루-화이트 별
+
+SIGNAL (리사주 도형 / 뫼비우스 띠):
+  기법: 주파수 비율이 다른 Lissajous 곡선 3개 실시간 위상 변화
+  특징: 수학적 패턴이 오실로스코프처럼 모핑. 내부 발광 코어 레이어.
+        fx:fy = 1:2(∞자) / 3:2(클로버) / 3:4(꼬인 리본) — 위상 변화로 뫼비우스 띠처럼 회전
+  크기: rx = W*0.26 (가로), ry = H*0.39 (세로) — 세로로 길쭉한 비율
+  팔레트: colorSeed 기반 hue 3색 (하늘 185° / 보라 285° / 레드핑크 338°), 'lighter' 블렌딩
+  라인: 밝기 56% (core 74%), alpha 0.10–0.85, 원색 강조
+  [변경 이력] 라인 밝기 82%→56% (하얗게 보이던 문제) / rx W*0.39→W*0.26 (가로 축소)
+
+BLOOM (피보나치 보태니컬):
+  기법: 황금비(φ) 기반 피보나치 나선 배치, 꽃잎 호흡 애니메이션
+  특징: 300개 꽃잎 타원이 황금각으로 배치, 전체가 천천히 회전하며 숨쉼
+  팔레트: hue % 260 + 80 → 80°–340° (yellow-green~violet, 빨간색 계열 완전 배제)
+  [변경] 꽃잎 r 최대 32px, 분포 반경 0.48
+         hue 클램핑 적용 — colorSeed가 어떤 값이든 빨간색 꽃잎 생성 안 됨
+
+EMBER (조각적 불꽃):
+  기법: 불꽃 파티클 + 연기 파티클 멀티레이어 물리, 난류 바람 필드
+  특징: 불꽃은 shadowBlur 발광, 연기는 확장하며 페이드. 열기 글로우 베이스.
+  팔레트: 레드-오렌지-옐로우, 발광 코어
+
+COSMOS (소형 파티클 원통 사이클):
+  기법: **200개 소형 파티클**(r 1.2–3.4px) — 4단계 사이클 루프 애니메이션
+  특징: 작은 빛점들이 이리저리 자유롭게 떠다니다 → 중앙으로 모여 원통(실린더)을 형성 →
+        원통 궤도 유지하며 회전 → 다시 분해되며 바깥으로 퍼져나감 → 반복.
+  사이클 구조 (약 12–13초 1루프):
+    DRIFT (0%–35%):  각 파티클이 기준 위치 주변 sin 진동 유영. alpha 서서히 증가.
+    CONVERGE (35%–58%): ease-in-out으로 원통 목표 위치 수렴. alpha 최고조.
+    CYLINDER (58%–74%): 수직 실린더 표면 배치 + cylRot 회전.
+                         앞면(cos>0)은 밝고 뒷면은 어둠 → 3D 깊이감.
+    DISPERSE (74%–100%): 기준 위치 132% 밖으로 발사 → alpha 감소 → DRIFT 재개.
+  렌더링: 외부 헤일로(r×3.8) + 글로우 링(r×2.0) + 밝은 코어 점(r×1.0).
+          globalCompositeOperation = 'lighter' — 원통 수렴 시 집단 발광 효과.
+  팔레트: hue 188–290° (블루-시안-보라-인디고). colorSeed + 시간 드리프트.
+  [업데이트] 22개 대형 blob → 200개 소형 파티클 (r 1.2–3.4px)
+
+DANCER (LED 댄스 퍼포먼스):
+  기법: 88×27 = 2376개 도트 매트릭스 + 캡슐 히트테스트 + 3인 동시 렌더링
+  특징: 3명의 댄서가 W*0.18 / W*0.50 / W*0.82 위치에 배치 → 캔버스 전체 점등.
+        각 댄서는 포즈 위상이 0 / 0.34 / 0.67만큼 어긋나 서로 다른 동작.
+        S = H/10 (이전 H/12 대비 20% 확대). 도트 반경 ≈ 3px (이전 5.9px 대비 절반).
+        켜진 LED: vivid 색상 + 흰 하이라이트 + 가산 블렌딩 헤일로.
+  포즈: V자 팔 / 한팔 킥 / 대각 X자 / 클럽 웨이브 / 브레이크다운 크라우치 / 팝스타 포즈
+  팔레트: colorSeed + 시간 hue 드리프트, x/y 위치에 따라 ±55°/20° hue 그래디언트
+  BPM 연동: speedMult로 포즈 전환 속도 조정
+  [변경] 단일 댄서→3인, 50×17→88×27, S=H/12→H/10, 도트 크기 절반으로 축소
+
+RISO (시티팝 / 리소그라프 판화):
+  기법: 2개 잉크 플레이트 각각 4px 오프셋 오버프린트 + 방사형 속도선 + 창문 빛
+  특징: 일본 시티팝 80s 야경 감성. 11개 빌딩 실루엣이 두 가지 비비드 색상으로
+        약간 어긋나게 인쇄된 리소그라프/판화 느낌. AKIRA 스타일 방사형 속도선.
+        animated grain (필름 노이즈), 스캔라인 (구형 TV 텍스처).
+  잉크 색상: H1 (colorSeed+308 = 마젠타 계열), H2 (colorSeed+168 = 시안 계열)
+             H3 (colorSeed+52 = 옐로우-오렌지 = 창문/속도선 액센트)
+  플레이트 겹침: screen 블렌딩 → 두 플레이트가 겹치는 곳은 밝고 복잡한 색 생성
+  BPM 연동: 속도선 길이 + 비트 플래시 강도
+
+── 공통 기술 규칙 ─────────────────────────────────────
+  globalCompositeOperation: 주요 씬 'lighter' (발광 가산 블렌딩)
+  isPaused: sp 계수 ~0.06–0.12 (느린 ambient 상태 유지)
+  BPM 연동: const sp = (base_speed) * st.speedMult (모든 씬 공통)
+  색상 연동: st.colorSeed를 hue에 더해 트랙별 팔레트 분리
+  트랙 변경: useEffect deps [sceneId, speedMult, colorSeed] → 반드시 재초기화
   Canvas 레이어:
-    1: canvas (position: absolute; inset: 0) — 제너레이티브 아트 전체
-    2: .sceneBadge — 현재 씬 이름 (좌상단 디버그 라벨)
-    3: .content — 트랙 정보 + 컨트롤 (position: relative)
+    1: canvas (position: absolute; inset: 0)
+    2: .content — 트랙 정보 + 컨트롤 오버레이
+  ※ sceneBadge(씬 이름 레이블) 제거됨
 
-컨트롤:
-  일반 버튼: border 1px solid rgba(255,255,255,0.15), bg rgba(255,255,255,0.08), 36px
-  재생 버튼: 48px, border rgba(255,255,255,0.20), bg rgba(255,255,255,0.12)
-  볼륨 아이콘: rgba(255,255,255,0.70)
-  슬라이더: bg rgba(255,255,255,0.20)
+컨트롤 — 리퀴드 글래스 스타일:
+  일반 버튼 (ctrlBtn):
+    background: linear-gradient(145deg, rgba(255,255,255,0.22) → rgba(255,255,255,0.08))
+    backdrop-filter: blur(20px) saturate(160%)
+    border: 1px solid rgba(255,255,255,0.30)
+    box-shadow: 0 4px 16px rgba(0,0,0,0.28) + inset top/bottom highlight
+    크기: 36px 원형
+
+  재생 버튼 (playBtn):
+    background: linear-gradient(145deg, rgba(255,255,255,0.30) → rgba(255,255,255,0.10))
+    backdrop-filter: blur(24px) saturate(200%)
+    border: rgba(255,255,255,0.42)
+    box-shadow: 0 8px 32px rgba(0,0,0,0.40) + 강화 inset highlight
+    크기: 48px 원형
+
+  볼륨 래퍼 (volumeWrap):
+    글래스 pill 형태: border-radius 20px, padding 6px 12px
+    background: linear-gradient(145deg, rgba(255,255,255,0.14) → rgba(255,255,255,0.06))
+    backdrop-filter: blur(16px) saturate(140%)
+    border: 1px solid rgba(255,255,255,0.20)
+
+  볼륨 슬라이더 (playbar):
+    width: 80px, height: 3px
+    track: linear-gradient(to right, rgba(255,255,255,0.65) → rgba(255,255,255,0.18))
+    thumb: 13px, gradient white, box-shadow 글래스 광택
+
+  loop 버튼:
+    아이콘 이중 상태 (상태에 따라 SVG 변경):
+      활성(ON):  표준 루프 화살표 아이콘 + 퍼플 글래스 하이라이트
+                 background: linear-gradient(145deg, rgba(139,122,238,0.55) → rgba(139,122,238,0.28))
+                 box-shadow: 0 4px 18px rgba(139,122,238,0.42) + inset highlight
+      비활성(OFF): 루프 화살표 아이콘 + 대각선 슬래시 (opacity 0.45) — 루프 해제 상태 명시
+    기본값: ON (loopRef = useRef(true))
 ```
 
 ### AiOrb — 가스 성운 빛 덩어리
@@ -382,20 +530,17 @@ label: 12px / --text-muted
 레이아웃: 스크롤 가능, 이전 버튼/제목 없음
 
 날짜 헤더:
-  padding: 52px 36px 20px
-  border-bottom: 1px solid rgba(0,0,0,0.06)
-  dateLine: "2026. 06. 19" — 14px, font-weight 700, letter-spacing 0.1em
-  dayBadge: "목요일" — 12px, text-muted, 옆에 나란히
+  padding: 28px 36px 20px (위로 올림 — 52px → 28px)
+  border-bottom: 없음 (제거)
+  dateLine: "2026. 06. 19" — 22px, font-weight 700, letter-spacing -0.01em
+  dayBadge: "목요일" — 16px, text-muted, 옆에 나란히
 
 인용 블록 (quoteBlock):
-  padding: 36px 36px 32px
+  padding: 16px 36px 32px
   openQuote: " — Georgia/serif, 78px, rgba(139,122,238,0.2), 장식용
-             line-height: 0.65, margin-bottom: 2px (간격 최소화)
+             line-height: 0.65, margin-bottom: -28px (따옴표와 텍스트 간격 최소화)
   quoteText: 17px, font-weight 400, line-height 1.9, letter-spacing -0.02em
              white-space pre-wrap (개행 유지)
-
-날짜 헤더:
-  dateLine: letter-spacing: 0.02em (이전 0.1em → 축소, 과도한 자간 제거)
 
 플레이리스트:
   padding: 0 36px 48px
@@ -419,13 +564,17 @@ inactive: var(--text-muted)
 첫 접속 / 리로드 시 표시
 
 메인 문구: "오늘 하루는 어떤가요?"
-  font-size: 18px
+  font-size: 42px
   font-weight: 300
   color: --text-primary
 
-부제: "기분이나 일정을 입력하면 바이브에 맞는 음악을 추천해드려요."
-  font-size: 14px
+부제: "기분이나 일정을 입력하면 음악을 추천해드려요."
+  font-size: 15px
   color: --text-secondary
+
+레이아웃:
+  콘텐츠 수직 중앙에서 위로 80px 이동
+  padding: 48px 40px 208px (bottom 패딩으로 center offset 조정)
 ```
 
 ---

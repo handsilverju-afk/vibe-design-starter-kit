@@ -8,7 +8,7 @@
 }
 
 .logo {
-  padding: 4px 8px 20px;
+  padding: 4px 8px 14px;
   background: none;
   border: none;
   cursor: pointer;
@@ -21,40 +21,41 @@
 .logo:hover { opacity: 0.65; }
 
 .logoText {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--text-primary);
-  letter-spacing: -0.04em;
+  letter-spacing: 0.06em;
 }
 
 .newBtn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(0,0,0,0.18);
-  background: var(--surface);
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #F9F8FC;
   color: var(--text-primary);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: -0.01em;
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s, box-shadow 0.15s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
   margin-bottom: 20px;
   font-family: inherit;
 }
 
 .newBtn:hover {
-  background: var(--surface-hover);
-  box-shadow: var(--card-shadow);
+  background: #FBFAFE;
+  border-color: rgba(0,0,0,0.16);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .newIcon {
   font-size: 16px;
-  color: var(--text-muted);
+  color: var(--text-primary);
   line-height: 1;
 }
 
@@ -111,7 +112,7 @@
 }
 
 .historyTitle {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-primary);
   letter-spacing: -0.01em;
   line-height: 1.4;

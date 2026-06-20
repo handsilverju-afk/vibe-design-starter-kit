@@ -26,13 +26,18 @@ export function AppProvider({ children }) {
     navigate('home')
   }
 
+  function openHistory(key) {
+    audio.stop()
+    navigate('detail', key)
+  }
+
   function addEntry(entry) {
     saveEntry(entry)
     setEntries(getEntries())
   }
 
   return (
-    <AppContext.Provider value={{ view, navigate, toast, showToast, audio, homeKey, newPlaylist, entries, addEntry }}>
+    <AppContext.Provider value={{ view, navigate, toast, showToast, audio, homeKey, newPlaylist, openHistory, entries, addEntry }}>
       {children}
     </AppContext.Provider>
   )
