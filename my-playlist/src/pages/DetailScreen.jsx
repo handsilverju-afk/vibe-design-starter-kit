@@ -56,6 +56,7 @@ export function DetailScreen({ date }) {
             playlists={entry.playlists}
             onPlay={handlePlay}
             currentId={audio.currentId}
+            isPaused={audio.isPaused}
           />
         </div>
       </div>
