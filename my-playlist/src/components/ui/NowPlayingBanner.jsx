@@ -78,7 +78,7 @@ function initFlow(W, H, opts = {}) {
     t: 0,
     speedMult: opts.speedMult ?? 1,
     colorSeed: opts.colorSeed ?? 0,
-    particles: Array.from({ length: 1800 }, () => ({
+    particles: Array.from({ length: 1000 }, () => ({
       x: Math.random() * W,
       y: Math.random() * H,
       px: -1, py: -1,
@@ -90,8 +90,8 @@ function initFlow(W, H, opts = {}) {
   }
 }
 
-function drawFlow(ctx, W, H, st, paused, beat = 0) {
-  const sp = (paused ? 0.06 : 0.55 + beat * 0.35) * st.speedMult
+function drawFlow(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
+  const sp = (paused ? 0.06 : 0.55 + beat * 0.30 + mid * 0.14) * st.speedMult
   st.t += sp
   const T = st.t
 
@@ -113,8 +113,8 @@ function drawFlow(ctx, W, H, st, paused, beat = 0) {
     p.life -= 0.0012 * sp
 
     if (p.px >= 0 && p.life > 0 && nx > 0 && nx < W && ny > 0 && ny < H) {
-      const a = Math.min(p.life / p.maxLife, 1) * (0.19 + beat * 0.12)
-      const h = (palHue + (p.hue - 160) * 0.5) % 360
+      const a = Math.min(p.life / p.maxLife, 1) * (0.19 + beat * 0.16 + treble * 0.16)
+      const h = (palHue + (p.hue - 160) * 0.5 + mid * 25) % 360
       ctx.beginPath()
       ctx.moveTo(p.px, p.py)
       ctx.lineTo(nx, ny)
@@ -139,7 +139,7 @@ function drawFlow(ctx, W, H, st, paused, beat = 0) {
 // ── SILK ─────────────────────────────────────────────────────────────────────
 // Iridescent woven surface — angle-dependent color like real fabric
 function initSilk(W, H, opts = {}) {
-  const cols = 50, rows = 24
+  const cols = 35, rows = 17
   return {
     t: 0, cols, rows,
     speedMult: opts.speedMult ?? 1,
@@ -156,11 +156,11 @@ function initSilk(W, H, opts = {}) {
   }
 }
 
-function drawSilk(ctx, W, H, st, paused, beat = 0) {
+function drawSilk(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
   const sp = (paused ? 0.05 : 0.48) * st.speedMult
   st.t += sp
   const T = st.t
-  const ampMult = 1 + beat * 0.55
+  const ampMult = 1 + beat * 0.90 + mid * 0.40
 
   ctx.fillStyle = 'rgba(4, 2, 10, 1)'
   ctx.fillRect(0, 0, W, H)
@@ -200,8 +200,8 @@ function drawSilk(ctx, W, H, st, paused, beat = 0) {
 
   const sx = W * (0.35 + 0.3 * Math.sin(T * 0.007))
   const sy = H * (0.28 + 0.2 * Math.cos(T * 0.005))
-  const spec = ctx.createRadialGradient(sx, sy, 0, sx, sy, W * (0.42 + beat * 0.10))
-  spec.addColorStop(0, 'rgba(255,255,255,0.16)')
+  const spec = ctx.createRadialGradient(sx, sy, 0, sx, sy, W * (0.36 + beat * 0.07 + treble * 0.06))
+  spec.addColorStop(0, `rgba(255,255,255,${(0.12 + treble * 0.14).toFixed(3)})`)
   spec.addColorStop(0.35, 'rgba(255,255,255,0.04)')
   spec.addColorStop(1, 'rgba(0,0,0,0)')
   ctx.fillStyle = spec
@@ -218,13 +218,13 @@ function initPrism(W, H, opts = {}) {
     colorSeed: opts.colorSeed ?? 0,
     verts: Array.from({ length: n }, (_, i) => ({
       angle: (i / n) * Math.PI * 2,
-      r: W * 0.2 + Math.random() * W * 0.08,
+      r: W * 0.17 + Math.random() * W * 0.06,
       spd: (0.003 + Math.random() * 0.004) * (Math.random() < 0.5 ? 1 : -1),
     })),
   }
 }
 
-function drawPrism(ctx, W, H, st, paused, beat = 0) {
+function drawPrism(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
   const sp = (paused ? 0.05 : 0.5) * st.speedMult
   st.t += sp
   const T = st.t
@@ -233,7 +233,7 @@ function drawPrism(ctx, W, H, st, paused, beat = 0) {
   ctx.fillRect(0, 0, W, H)
 
   const cx = W * 0.5, cy = H * 0.5
-  const bScale = 1 + beat * 0.15
+  const bScale = 1 + beat * 0.22 + mid * 0.09
   const pts = st.verts.map(v => ({
     x: cx + Math.cos(v.angle + T * v.spd) * v.r * bScale,
     y: cy + Math.sin(v.angle + T * v.spd * 0.72) * v.r * 0.55 * bScale,
@@ -280,7 +280,7 @@ function drawPrism(ctx, W, H, st, paused, beat = 0) {
     const a = pts[i], b = pts[(i + 1) % n]
     const hue = (i / n) * 300 + T * 0.22
     ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y)
-    ctx.strokeStyle = `hsla(${hue},100%,82%,${(0.20 + beat * 0.25).toFixed(3)})`
+    ctx.strokeStyle = `hsla(${hue},100%,82%,${(0.20 + beat * 0.32 + treble * 0.28).toFixed(3)})`
     ctx.lineWidth = 1.6; ctx.stroke()
   }
   // diffraction rays from rotating peak vertex
@@ -290,7 +290,7 @@ function drawPrism(ctx, W, H, st, paused, beat = 0) {
     const ex = peak.x + Math.cos(ang) * W * 0.45
     const ey = peak.y + Math.sin(ang) * H * 0.45
     const lg = ctx.createLinearGradient(peak.x, peak.y, ex, ey)
-    lg.addColorStop(0, `hsla(${r * 60 + T * 0.25},100%,82%,${(0.16 + beat * 0.22).toFixed(3)})`)
+    lg.addColorStop(0, `hsla(${r * 60 + T * 0.25},100%,82%,${(0.16 + beat * 0.28 + treble * 0.24).toFixed(3)})`)
     lg.addColorStop(1, `hsla(${r * 60 + T * 0.25},100%,82%,0)`)
     ctx.beginPath(); ctx.moveTo(peak.x, peak.y); ctx.lineTo(ex, ey)
     ctx.strokeStyle = lg; ctx.lineWidth = 1; ctx.stroke()
@@ -322,12 +322,12 @@ function initPop(W, H, opts = {}) {
   })
   return {
     t: 0, speedMult: opts.speedMult ?? 1, colorSeed: cs,
-    rects, flowers: [], nextBurst: 25, lastBurst: 0,
+    rects, flowers: [], nextBurst: 25, lastBurst: 0, burstRemain: 0,
   }
 }
 
-function drawPop(ctx, W, H, st, paused, beat = 0) {
-  const sp = (paused ? 0.025 : 0.30) * st.speedMult
+function drawPop(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
+  const sp = (paused ? 0.025 : 0.30 + mid * 0.10) * st.speedMult
   st.t += sp
   const T = st.t
 
@@ -356,48 +356,62 @@ function drawPop(ctx, W, H, st, paused, beat = 0) {
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0)
 
-  // Spawn flower burst — petals spread across full canvas width
-  if (!paused && (T >= st.nextBurst || (beat > 0.70 && T - st.lastBurst > 90))) {
+  // Trigger burst — petals trickle in rapidly over ~20 frames (Kenzo style)
+  if (!paused && (T >= st.nextBurst || (beat > 0.65 && T - st.lastBurst > 85) || (mid > 0.55 && T - st.lastBurst > 110))) {
     st.lastBurst = T
-    const n = 45 + Math.floor(Math.random() * 35)
-    for (let i = 0; i < n; i++) {
-      st.flowers.push({
-        x: W * (0.02 + Math.random() * 0.96),
-        y: H * (0.70 + Math.random() * 0.24),
-        vx: (Math.random() - 0.5) * 2.2,
-        vy: -(14 + Math.random() * 16 + beat * 6),
-        r: 6 + Math.random() * 10,
-        rot: Math.random() * Math.PI * 2,
-        rotV: (Math.random() - 0.5) * 0.18,
-        hue: 338 + Math.random() * 36,
-        life: 1.0,
-        decay: 0.004 + Math.random() * 0.004,
-      })
-    }
+    st.burstRemain = 110 + Math.floor(Math.random() * 40)
     st.nextBurst = T + 160 + Math.random() * 180
+  }
+
+  // Spawn petals in irregular clusters — gust-like, not uniform
+  if (!paused && st.burstRemain > 0) {
+    if (Math.random() < 0.45) {                        // 45% 확률로 이번 프레임 생성
+      const clusterX = W * Math.random()               // 클러스터 중심 x
+      const count = 6 + Math.floor(Math.random() * 10) // 한 클러스터에 6~15개
+      for (let i = 0; i < count; i++) {
+        const windDir = (Math.random() - 0.5) * 2
+        st.flowers.push({
+          x: clusterX + (Math.random() - 0.5) * W * 0.15,  // 클러스터 근처에 모임
+          y: H + 4 + Math.random() * 8,
+          vx: windDir * (1 + Math.random() * 3.5),
+          vy: -(36 + Math.random() * 26 + beat * 10),
+          r: 5 + Math.random() * 11,
+          rot: Math.random() * Math.PI * 2,
+          rotV: (Math.random() - 0.5) * 0.28,
+          hue: 330 + Math.random() * 30,
+          life: 1.0,
+          decay: 0.007 + Math.random() * 0.005,
+        })
+      }
+      st.burstRemain -= count
+    }
   }
 
   // Update + draw petals
   for (let i = st.flowers.length - 1; i >= 0; i--) {
     const f = st.flowers[i]
-    f.vy += 0.062 * sp
+    f.vy -= 0.18 * sp
     f.vx *= 0.985
-    f.x += f.vx * sp
-    f.y += f.vy * sp
+    const easeOut = f.life ** 0.5   // life 줄수록 속도 감소
+    f.x += f.vx * sp * easeOut
+    f.y += f.vy * sp * easeOut
     f.rot += f.rotV * sp
     f.life -= f.decay * sp
-    if (f.life <= 0 || f.y > H + 18) { st.flowers.splice(i, 1); continue }
-    const a = Math.max(0, f.life) * 0.92
+    if (f.life <= 0 || f.y > H + 20) { st.flowers.splice(i, 1); continue }
+    const a = Math.max(0, f.life) * 0.95
     ctx.save()
     ctx.translate(f.x, f.y)
     ctx.rotate(f.rot)
+    ctx.shadowColor = `hsla(${f.hue},95%,62%,0.5)`
+    ctx.shadowBlur = f.r * 1.4
     ctx.beginPath()
-    ctx.ellipse(0, 0, f.r, f.r * 0.50, 0, 0, Math.PI * 2)
-    ctx.fillStyle = `hsla(${f.hue},90%,58%,${a.toFixed(3)})`
+    ctx.ellipse(0, 0, f.r, f.r * 0.44, 0, 0, Math.PI * 2)
+    ctx.fillStyle = `hsla(${f.hue},92%,58%,${a.toFixed(3)})`
     ctx.fill()
+    ctx.shadowBlur = 0
     ctx.beginPath()
-    ctx.ellipse(-f.r * 0.16, -f.r * 0.14, f.r * 0.35, f.r * 0.20, 0, 0, Math.PI * 2)
-    ctx.fillStyle = `rgba(255,200,200,${(a * 0.40).toFixed(3)})`
+    ctx.ellipse(-f.r * 0.14, -f.r * 0.12, f.r * 0.30, f.r * 0.17, 0, 0, Math.PI * 2)
+    ctx.fillStyle = `rgba(255,205,205,${(a * 0.42).toFixed(3)})`
     ctx.fill()
     ctx.restore()
   }
@@ -426,7 +440,7 @@ function initVoid(W, H, opts = {}) {
   }
 }
 
-function drawVoid(ctx, W, H, st, paused, beat = 0) {
+function drawVoid(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
   const sp = (paused ? 0.06 : 0.5) * st.speedMult
   st.t += sp
   const T = st.t
@@ -436,7 +450,7 @@ function drawVoid(ctx, W, H, st, paused, beat = 0) {
   ctx.fillRect(0, 0, W, H)
 
   for (const s of st.stars) {
-    s.ang += s.spd * sp
+    s.ang += s.spd * sp * (1 + mid * 0.8)
     s.r = Math.max(22, s.r + s.drift * sp)
     if (s.r <= 22) {
       s.ang = Math.random() * Math.PI * 2
@@ -459,13 +473,13 @@ function drawVoid(ctx, W, H, st, paused, beat = 0) {
   }
 
   st.pulse = (st.pulse + sp * 0.014) % (Math.PI * 2)
-  const pm = 1 + (0.07 + beat * 0.10) * Math.sin(st.pulse)
+  const pm = 1 + (0.07 + beat * 0.18 + mid * 0.14) * Math.sin(st.pulse)
 
   ctx.save()
   ctx.globalCompositeOperation = 'lighter'
   for (let i = 0; i < 3; i++) {
     const rg = ctx.createRadialGradient(cx, cy, 22 + i * 8, cx, cy, 90 + i * 30)
-    rg.addColorStop(0, `rgba(${70 + i * 25}, 0, ${180 - i * 20}, ${(0.07 - i * 0.015 + beat * 0.05).toFixed(3)})`)
+    rg.addColorStop(0, `rgba(${70 + i * 25}, 0, ${180 - i * 20}, ${(0.07 - i * 0.015 + beat * 0.09 + treble * 0.10).toFixed(3)})`)
     rg.addColorStop(1, 'rgba(0,0,0,0)')
     ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H)
   }
@@ -475,7 +489,7 @@ function drawVoid(ctx, W, H, st, paused, beat = 0) {
   for (let ring = 0; ring < 3; ring++) {
     ctx.beginPath()
     ctx.arc(cx, cy, (26 + ring * 9) * pm + beat * W * 0.022, 0, Math.PI * 2)
-    ctx.strokeStyle = `rgba(155,90,255,${[0.55, 0.25, 0.10][ring]})`
+    ctx.strokeStyle = `rgba(155,90,255,${([0.55, 0.25, 0.10][ring] + treble * 0.25).toFixed(3)})`
     ctx.lineWidth = ring === 0 ? 2 : 1
     ctx.stroke()
   }
@@ -496,67 +510,80 @@ function initSignal(W, H, opts = {}) {
     speedMult: opts.speedMult ?? 1,
     colorSeed: cs,
     curves: [
-      { fx: 1, fy: 2, hue: (185 + cs) % 360 },
-      { fx: 3, fy: 2, hue: (285 + cs) % 360 },
-      { fx: 3, fy: 4, hue: (338 + cs) % 360 },
+      { fx: 1, fy: 2, hue: cs % 360,         fxDrift: 0.13, morphSpd: 0.0017, drawPhase: 0.00, drawSpd: 0.0018 },
+      { fx: 3, fy: 2, hue: (cs + 72) % 360,  fxDrift: 0.10, morphSpd: 0.0023, drawPhase: 0.33, drawSpd: 0.0022 },
+      { fx: 3, fy: 4, hue: (cs + 144) % 360, fxDrift: 0.12, morphSpd: 0.0014, drawPhase: 0.66, drawSpd: 0.0016 },
     ],
   }
 }
 
-function drawSignal(ctx, W, H, st, paused, beat = 0) {
+function drawSignal(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
   const sp = (paused ? 0.06 : 0.5) * st.speedMult
   st.t += sp
   const T = st.t
 
-  ctx.fillStyle = 'rgba(3, 5, 10, 0.24)'
+  ctx.fillStyle = 'rgb(3, 5, 10)'
   ctx.fillRect(0, 0, W, H)
 
   const cx = W * 0.5, cy = H * 0.5
   const rx = W * 0.26, ry = H * 0.39
+  const STEPS = 350
+  const WINDOW = 0.40  // 커브의 40%만 보임
 
   ctx.save()
   ctx.globalCompositeOperation = 'lighter'
 
   for (const c of st.curves) {
-    const phase = T * 0.007 + c.fx * 0.4
-    const STEPS = 700
+    if (!paused) c.drawPhase = (c.drawPhase + sp * c.drawSpd) % 1
 
-    ctx.lineWidth = 1.6 + beat * 1.8
-    for (let i = 1; i <= STEPS; i++) {
-      const a0 = ((i - 1) / STEPS) * Math.PI * 2
-      const a1 = (i / STEPS) * Math.PI * 2
-      const x0 = cx + rx * Math.sin(c.fx * a0 + phase)
+    const phase = T * 0.007 + c.fx * 0.4
+    const fxEff = c.fx + c.fxDrift * Math.sin(T * c.morphSpd)
+
+    ctx.lineWidth = 1.4 + beat * 1.8 + treble * 1.0
+
+    for (let i = 0; i < STEPS; i++) {
+      const t0 = i / STEPS
+      const t1 = (i + 1) / STEPS
+
+      // head에서 얼마나 뒤에 있는지 (0=head, 1=한 바퀴 뒤)
+      const dist = (c.drawPhase - t0 + 1) % 1
+      if (dist > WINDOW) continue
+
+      const tailFrac = 1 - dist / WINDOW   // 0=꼬리, 1=head
+      const fade = tailFrac ** 1.8
+
+      const a0 = t0 * Math.PI * 2
+      const a1 = t1 * Math.PI * 2
+      const x0 = cx + rx * Math.sin(fxEff * a0 + phase)
       const y0 = cy + ry * Math.sin(c.fy * a0)
-      const x1 = cx + rx * Math.sin(c.fx * a1 + phase)
+      const x1 = cx + rx * Math.sin(fxEff * a1 + phase)
       const y1 = cy + ry * Math.sin(c.fy * a1)
 
-      const frac = i / STEPS
-      const alpha = Math.min(0.85, Math.sin(frac * Math.PI) * 0.62 + 0.12) * (1 + beat * 0.55)
-      const hue = (c.hue + frac * 38) % 360
+      const alpha = Math.min(1, fade * 0.70 * (1 + beat * 0.60 + mid * 0.35))
+      const hue = (c.hue + t0 * 55) % 360
+
       ctx.beginPath()
-      ctx.moveTo(x0, y0); ctx.lineTo(x1, y1)
+      ctx.moveTo(x0, y0)
+      ctx.lineTo(x1, y1)
       ctx.strokeStyle = `hsla(${hue}, 100%, 56%, ${alpha.toFixed(3)})`
       ctx.stroke()
     }
 
-    // inner luminous core — vivid, saturated
-    ctx.lineWidth = 0.5
-    for (let i = 1; i <= STEPS; i++) {
-      const a0 = ((i - 1) / STEPS) * Math.PI * 2
-      const a1 = (i / STEPS) * Math.PI * 2
-      ctx.beginPath()
-      ctx.moveTo(cx + rx * Math.sin(c.fx * a0 + phase), cy + ry * Math.sin(c.fy * a0))
-      ctx.lineTo(cx + rx * Math.sin(c.fx * a1 + phase), cy + ry * Math.sin(c.fy * a1))
-      ctx.strokeStyle = `hsla(${c.hue}, 100%, 74%, 0.35)`
-      ctx.stroke()
-    }
+    // head 끝점 빛나는 점
+    const headA = c.drawPhase * Math.PI * 2
+    const hx = cx + rx * Math.sin(fxEff * headA + phase)
+    const hy = cy + ry * Math.sin(c.fy * headA)
+    ctx.beginPath()
+    ctx.arc(hx, hy, 1.5, 0, Math.PI * 2)
+    ctx.fillStyle = `hsla(${(c.hue + 20) % 360}, 100%, 95%, 0.90)`
+    ctx.fill()
   }
 
   ctx.globalCompositeOperation = 'source-over'
   ctx.restore()
 
   const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.18)
-  glow.addColorStop(0, `rgba(100,200,255,${(0.18 + beat * 0.28).toFixed(3)})`)
+  glow.addColorStop(0, `rgba(100,200,255,${(0.08 + beat * 0.10 + treble * 0.08).toFixed(3)})`)
   glow.addColorStop(1, 'rgba(0,0,0,0)')
   ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H)
 }
@@ -568,23 +595,20 @@ function initBloom(W, H, opts = {}) {
   const n = 300
   return {
     t: 0,
+    rot: 0,
     speedMult: opts.speedMult ?? 1,
     colorSeed: opts.colorSeed ?? 0,
-    petals: Array.from({ length: n }, (_, i) => {
-      const ang = i * Math.PI * 2 / phi
-      const dist = Math.sqrt(i / n) * Math.min(W, H) * 0.48
-      return {
-        ang,
-        dist,
-        r: 8 + (i / n) * 24,
-        hue: 80 + (i / n) * 220,
-        t: i * 0.018,
-      }
-    }),
+    petals: Array.from({ length: n }, (_, i) => ({
+      ang:  i * Math.PI * 2 / phi,
+      dist: Math.sqrt(i / n) * Math.min(W, H) * 0.58,
+      r:    9 + (i / n) * 28,
+      hue:  80 + (i / n) * 220,
+      t:    i * 0.018,
+    })),
   }
 }
 
-function drawBloom(ctx, W, H, st, paused, beat = 0) {
+function drawBloom(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
   const sp = (paused ? 0.04 : 0.4) * st.speedMult
   st.t += sp
   const T = st.t
@@ -596,15 +620,14 @@ function drawBloom(ctx, W, H, st, paused, beat = 0) {
   ctx.save()
   ctx.globalCompositeOperation = 'lighter'
 
-  const rot = T * 0.0038
+  if (!paused) st.rot += sp * 0.0038   // 일정한 속도로만 회전, mid 영향 제거
+  const rot = st.rot
   for (const p of st.petals) {
-    const breathe = 0.88 + (0.12 + beat * 0.10) * Math.sin(T * 0.016 + p.t)
+    const breathe = 0.88 + (0.12 + beat * 0.22 + mid * 0.16) * Math.sin(T * 0.016 + p.t)
     const bx = cx + Math.cos(p.ang + rot) * p.dist * breathe
     const by = cy + Math.sin(p.ang + rot) * p.dist * 0.58 * breathe
-
-    // modulo 260 then +80 → hue stays 80°–339°, never hits red zone
     const hue = ((p.hue + T * 0.14 + st.colorSeed) % 260 + 80)
-    const a = Math.max(0.01, 0.09 + (0.06 + beat * 0.05) * Math.sin(T * 0.022 + p.t))
+    const a = Math.max(0.01, 0.09 + (0.06 + beat * 0.10 + treble * 0.10) * Math.sin(T * 0.022 + p.t))
 
     ctx.save()
     ctx.translate(bx, by)
@@ -619,9 +642,10 @@ function drawBloom(ctx, W, H, st, paused, beat = 0) {
   ctx.globalCompositeOperation = 'source-over'
 
   const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, H * 0.22)
-  cg.addColorStop(0, `hsla(${(65 + T * 0.28 + st.colorSeed) % 360}, 90%, 82%, ${(0.20 + beat * 0.24).toFixed(3)})`)
+  cg.addColorStop(0, `hsla(${(65 + T * 0.28 + st.colorSeed) % 360}, 90%, 82%, ${(0.20 + beat * 0.24 + treble * 0.10).toFixed(3)})`)
   cg.addColorStop(1, 'rgba(0,0,0,0)')
-  ctx.fillStyle = cg; ctx.fillRect(0, 0, W, H)
+  ctx.fillStyle = cg
+  ctx.fillRect(0, 0, W, H)
 
   ctx.restore()
 }
@@ -651,8 +675,8 @@ function initEmber(W, H, opts = {}) {
   }
 }
 
-function drawEmber(ctx, W, H, st, paused, beat = 0) {
-  const sp = (paused ? 0.1 : 1.0 + beat * 0.6) * st.speedMult
+function drawEmber(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
+  const sp = (paused ? 0.1 : 1.0 + beat * 0.7 + mid * 0.3) * st.speedMult
   st.t += sp
   const T = st.t
 
@@ -660,7 +684,7 @@ function drawEmber(ctx, W, H, st, paused, beat = 0) {
   ctx.fillRect(0, 0, W, H)
 
   const heat = ctx.createRadialGradient(W * 0.5, H * 0.84, 0, W * 0.5, H * 0.84, W * 0.42)
-  heat.addColorStop(0, `rgba(255,90,10,${(0.28 + 0.08 * Math.sin(T * 0.045) + beat * 0.16).toFixed(3)})`)
+  heat.addColorStop(0, `rgba(255,90,10,${(0.28 + 0.08 * Math.sin(T * 0.045) + beat * 0.22 + mid * 0.14).toFixed(3)})`)
   heat.addColorStop(0.4, 'rgba(200,50,5,0.10)')
   heat.addColorStop(1, 'rgba(0,0,0,0)')
   ctx.fillStyle = heat; ctx.fillRect(0, 0, W, H)
@@ -685,7 +709,7 @@ function drawEmber(ctx, W, H, st, paused, beat = 0) {
       ctx.beginPath()
       ctx.arc(p.x, p.y, p.r * decay, 0, Math.PI * 2)
       ctx.fillStyle = `hsla(${p.hue + (1 - decay) * 20}, 100%, ${52 + decay * 38}%, ${(decay * 0.72).toFixed(3)})`
-      ctx.shadowBlur = p.r * (3.5 + beat * 4); ctx.shadowColor = `hsla(${p.hue},100%,60%,0.5)`
+      ctx.shadowBlur = p.r * (1.8 + beat * 2.5 + treble * 1.5); ctx.shadowColor = `hsla(${p.hue},100%,62%,0.45)`
       ctx.fill(); ctx.shadowBlur = 0
     } else {
       ctx.beginPath()
@@ -725,10 +749,10 @@ function initCosmos(W, H, opts = {}) {
   }
 }
 
-function drawCosmos(ctx, W, H, st, paused, beat = 0) {
+function drawCosmos(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
   const sp = (paused ? 0.04 : 0.5) * st.speedMult
   st.t += sp
-  st.cycleT += sp * (0.0022 + beat * 0.001)
+  st.cycleT += sp * (0.0022 + beat * 0.002 + mid * 0.0015)
   st.cylRot += sp * 0.016
   const T = st.t
   const CYC = st.cycleT % 1
@@ -762,28 +786,29 @@ function drawCosmos(ctx, W, H, st, paused, beat = 0) {
       tx = driftX + (cylX - driftX) * f
       ty = driftY + (cylY - driftY) * f
       alpha = 0.62 + 0.38 * f
-    } else if (CYC < 0.74) {
+    } else if (CYC < 0.92) {
       tx = cylX; ty = cylY
       const depth = (Math.cos(p.ca + st.cylRot) + 1) * 0.5
       alpha = 0.28 + 0.72 * depth
     } else {
-      const f = ease((CYC - 0.74) / 0.26)
-      const outX = cx + (p.rx - cx) * 1.32
-      const outY = cy + (p.ry - cy) * 1.32
+      const raw = (CYC - 0.92) / 0.08
+      const f = 1 - (1 - raw) ** 2.8  // ease-out: burst fast, decelerate at end
+      const outX = cx + (p.rx - cx) * 1.18
+      const outY = cy + (p.ry - cy) * 1.18
       tx = cylX + (outX - cylX) * f
       ty = cylY + (outY - cylY) * f
       alpha = 1.0 - f * 0.55
     }
 
-    p.x += (tx - p.x) * (0.09 + beat * 0.04)
-    p.y += (ty - p.y) * (0.09 + beat * 0.04)
+    p.x += (tx - p.x) * (0.07 + beat * 0.06 + mid * 0.04)
+    p.y += (ty - p.y) * (0.07 + beat * 0.06 + mid * 0.04)
 
     const hue = (p.hue + st.colorSeed + T * 0.07) % 360
     const a = alpha * (0.88 + beat * 0.14)
 
     // Outer soft halo
-    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (3.8 + beat * 1.6), 0, Math.PI * 2)
-    ctx.fillStyle = `hsla(${hue},85%,62%,${(a * 0.07).toFixed(3)})`; ctx.fill()
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (2.5 + beat * 1.0 + treble * 0.8), 0, Math.PI * 2)
+    ctx.fillStyle = `hsla(${hue},85%,62%,${(a * 0.05).toFixed(3)})`; ctx.fill()
     // Glow ring
     ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 2.0, 0, Math.PI * 2)
     ctx.fillStyle = `hsla(${hue},90%,68%,${(a * 0.30).toFixed(3)})`; ctx.fill()
@@ -809,7 +834,7 @@ function initRiso(W, H, opts = {}) {
   return { t: 0, speedMult: opts.speedMult ?? 1, colorSeed: cs, bldgs }
 }
 
-function drawRiso(ctx, W, H, st, paused, beat = 0) {
+function drawRiso(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
   const sp = (paused ? 0.025 : 0.34) * st.speedMult
   st.t += sp
   const T = st.t
@@ -829,7 +854,7 @@ function drawRiso(ctx, W, H, st, paused, beat = 0) {
   for (let y = 0; y < H; y += 4) ctx.fillRect(0, y, W, 1)
 
   // Slow city pan
-  const panX = Math.sin(T * 0.009) * W * 0.016
+  const panX = Math.sin(T * 0.009) * W * (0.016 + mid * 0.024)
 
   // === PLATE 1: Color 1 buildings (offset right+down) ===
   ctx.fillStyle = `hsl(${H1}, 84%, 42%)`
@@ -853,7 +878,7 @@ function drawRiso(ctx, W, H, st, paused, beat = 0) {
 
   ctx.save()
   ctx.globalCompositeOperation = 'lighter'
-  const lineAlpha = 0.10 + beat * 0.24
+  const lineAlpha = 0.10 + beat * 0.34 + treble * 0.22
   for (let i = 0; i < 48; i++) {
     const ang = (i / 48) * Math.PI * 2 + T * 0.005
     const s = 6 + beat * 18
@@ -877,7 +902,7 @@ function drawRiso(ctx, W, H, st, paused, beat = 0) {
         if (on) {
           const wx = b.x0 + panX + c * 11 + 5
           const wy = H - b.h + r * 22 + 8
-          ctx.fillStyle = `hsla(${(H3 + r * 18 + c * 11) % 360}, 88%, 74%, ${0.52 + beat * 0.3})`
+          ctx.fillStyle = `hsla(${(H3 + r * 18 + c * 11) % 360}, 88%, 74%, ${(0.52 + beat * 0.24 + treble * 0.18).toFixed(3)})`
           ctx.fillRect(wx, wy, 4, 7)
         }
       }
@@ -977,7 +1002,7 @@ function initDancer(W, H, opts = {}) {
   const cw = W / COLS, ch = H / ROWS
   return {
     t: 0, COLS, ROWS, cw, ch,
-    r: Math.min(cw, ch) * 0.34,
+    r: Math.min(cw, ch) * 0.46,
     speedMult: opts.speedMult ?? 1,
     colorSeed: opts.colorSeed ?? 0,
     poseIdx: 0, poseT: 0,
@@ -990,10 +1015,10 @@ function initDancer(W, H, opts = {}) {
   }
 }
 
-function drawDancer(ctx, W, H, st, paused, beat = 0) {
+function drawDancer(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
   const sp = (paused ? 0.03 : 0.45) * st.speedMult
   st.t += sp
-  st.poseT += sp * 0.016
+  st.poseT += sp * (0.016 + mid * 0.014)
 
   if (st.poseT >= 1) {
     st.poseT -= 1
@@ -1040,8 +1065,8 @@ function drawDancer(ctx, W, H, st, paused, beat = 0) {
   ctx.globalCompositeOperation = 'lighter'
   for (const { x, y } of bright) {
     const h = (dH + (x / W) * 55 + (y / H) * 20) % 360
-    ctx.beginPath(); ctx.arc(x, y, r * (2.8 + beat * 0.7), 0, Math.PI * 2)
-    ctx.fillStyle = `hsla(${h}, 100%, 65%, ${(0.055 + beat * 0.06).toFixed(3)})`
+    ctx.beginPath(); ctx.arc(x, y, r * (1.9 + beat * 0.5 + treble * 0.25), 0, Math.PI * 2)
+    ctx.fillStyle = `hsla(${h}, 100%, 65%, ${(0.060 + beat * 0.03 + treble * 0.02).toFixed(3)})`
     ctx.fill()
   }
   ctx.restore()
@@ -1052,8 +1077,8 @@ function drawDancer(ctx, W, H, st, paused, beat = 0) {
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2)
     ctx.fillStyle = `hsl(${h}, 96%, 74%)`
     ctx.fill()
-    ctx.beginPath(); ctx.arc(x, y, r * 0.36, 0, Math.PI * 2)
-    ctx.fillStyle = 'rgba(255,255,255,0.82)'
+    ctx.beginPath(); ctx.arc(x, y, r * 0.44, 0, Math.PI * 2)
+    ctx.fillStyle = `rgba(255,255,255,${(0.96 + treble * 0.04).toFixed(2)})`
     ctx.fill()
   }
   if (beat > 0.4) {
@@ -1108,6 +1133,7 @@ export function NowPlayingBanner({
   const pausedRef   = useRef(isPaused)
   const freqDataRef = useRef(null)
   const beatCtrRef  = useRef(0)
+  const smoothRef   = useRef({ bass: 0, mid: 0, treble: 0 })
   const bpmRef      = useRef(108)
   const sceneOrder = useMemo(() => seededShuffle(SCENE_KEYS, queueSeed ?? 1), [queueSeed])
   const sceneId    = sceneOrder[trackIndex % N]
@@ -1126,30 +1152,57 @@ export function NowPlayingBanner({
     const ctx = canvas.getContext('2d')
     const scene = SCENES[sceneId]
     const state = scene.init(W, H, { speedMult, colorSeed })
+    smoothRef.current = { bass: 0, mid: 0, treble: 0 }
     let raf
 
-    function getBeat() {
+    // ── 주파수 데이터 추출 (bass / mid / treble) ──────────────────────────────
+    function getAudioData() {
       const a = analyser?.current
       if (a) {
-        if (!freqDataRef.current || freqDataRef.current.length !== a.frequencyBinCount) {
-          freqDataRef.current = new Uint8Array(a.frequencyBinCount)
+        const bc = a.frequencyBinCount
+        if (!freqDataRef.current || freqDataRef.current.length !== bc) {
+          freqDataRef.current = new Uint8Array(bc)
         }
         a.getByteFrequencyData(freqDataRef.current)
         const d = freqDataRef.current
-        let bass = 0
-        for (let i = 0; i < 5; i++) bass += d[i]
-        return Math.min(1, Math.pow(bass / (5 * 210), 1.6))
+        const avg = (s, e) => {
+          let v = 0
+          for (let i = s; i < e; i++) v += d[i]
+          return v / (Math.max(1, e - s) * 255)
+        }
+        // fftSize=256 → bc=128, binHz≈344Hz
+        // bass: 0-~14%, mid: 14-~45%, treble: 45-~75%
+        const bi = Math.max(2, Math.floor(bc * 0.04))
+        const mi = Math.max(bi + 2, Math.floor(bc * 0.18))
+        const ti = Math.min(bc, Math.floor(bc * 0.55))
+        return {
+          bass:   Math.min(1, avg(0,  bi) * 2.2),
+          mid:    Math.min(1, avg(bi, mi) * 1.8),
+          treble: Math.min(1, avg(mi, ti) * 2.5),
+        }
       }
-      // BPM pseudo-beat fallback
+      // BPM pseudo-beat fallback — mock mode
       beatCtrRef.current += pausedRef.current ? 0.2 : 1
       const beatLen = 3600 / bpmRef.current
       const phase = (beatCtrRef.current % beatLen) / beatLen
-      return phase < 0.12 ? (1 - phase / 0.12) ** 2 : 0
+      const bass = phase < 0.14 ? (1 - phase / 0.14) ** 1.6 : 0
+      const mid = 0.32 + 0.30 * Math.sin(beatCtrRef.current * 0.038)   // 0.02–0.62
+      const treble = phase < 0.09 ? (1 - phase / 0.09) * 0.70 : 0.08 + 0.07 * Math.sin(beatCtrRef.current * 0.11)
+      return { bass, mid, treble }
     }
 
+    // 비대칭 lerp: attack 빠름, release 느림 (튀지 않도록)
+    const lp = (c, t, a, r) => c + (t - c) * (t > c ? a : r)
+
     const tick = () => {
-      const beat = getBeat()
-      scene.draw(ctx, W, H, state, pausedRef.current, beat)
+      const raw = getAudioData()
+      const s = smoothRef.current
+      s.bass   = lp(s.bass,   raw.bass,   0.55, 0.20)
+      s.mid    = lp(s.mid,    raw.mid,    0.45, 0.18)
+      s.treble = lp(s.treble, raw.treble, 0.65, 0.30)
+
+      scene.draw(ctx, W, H, state, pausedRef.current, s.bass, s.mid, s.treble)
+
       raf = requestAnimationFrame(tick)
     }
     tick()
