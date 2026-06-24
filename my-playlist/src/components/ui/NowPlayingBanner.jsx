@@ -510,9 +510,9 @@ function initSignal(W, H, opts = {}) {
     speedMult: opts.speedMult ?? 1,
     colorSeed: cs,
     curves: [
-      { fx: 1, fy: 2, hue: cs % 360,         fxDrift: 0.13, morphSpd: 0.0017, drawPhase: 0.00, drawSpd: 0.0018 },
-      { fx: 3, fy: 2, hue: (cs + 72) % 360,  fxDrift: 0.10, morphSpd: 0.0023, drawPhase: 0.33, drawSpd: 0.0022 },
-      { fx: 3, fy: 4, hue: (cs + 144) % 360, fxDrift: 0.12, morphSpd: 0.0014, drawPhase: 0.66, drawSpd: 0.0016 },
+      { fx: 1, fy: 2, hue: cs % 360,         phSpd: 0.0031 },
+      { fx: 3, fy: 2, hue: (cs + 72) % 360,  phSpd: 0.0019 },
+      { fx: 3, fy: 4, hue: (cs + 144) % 360, phSpd: 0.0024 },
     ],
   }
 }
@@ -522,61 +522,48 @@ function drawSignal(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
   st.t += sp
   const T = st.t
 
-  ctx.fillStyle = 'rgb(3, 5, 10)'
+  ctx.fillStyle = 'rgba(3, 5, 10, 0.24)'
   ctx.fillRect(0, 0, W, H)
 
   const cx = W * 0.5, cy = H * 0.5
   const rx = W * 0.26, ry = H * 0.39
   const STEPS = 350
-  const WINDOW = 0.40  // 커브의 40%만 보임
 
   ctx.save()
   ctx.globalCompositeOperation = 'lighter'
 
   for (const c of st.curves) {
-    if (!paused) c.drawPhase = (c.drawPhase + sp * c.drawSpd) % 1
-
-    const phase = T * 0.007 + c.fx * 0.4
-    const fxEff = c.fx + c.fxDrift * Math.sin(T * c.morphSpd)
+    const phase = T * c.phSpd + c.fx * 0.4   // 커브마다 다른 속도로 phase 이동
+    const fxEff = c.fx                        // 정수 고정 → 곡선 완전히 닫힘
+    const baseAlpha = (0.30 + mid * 0.18) * (1 + beat * 0.65)
 
     ctx.lineWidth = 1.4 + beat * 1.8 + treble * 1.0
 
-    for (let i = 0; i < STEPS; i++) {
-      const t0 = i / STEPS
-      const t1 = (i + 1) / STEPS
-
-      // head에서 얼마나 뒤에 있는지 (0=head, 1=한 바퀴 뒤)
-      const dist = (c.drawPhase - t0 + 1) % 1
-      if (dist > WINDOW) continue
-
-      const tailFrac = 1 - dist / WINDOW   // 0=꼬리, 1=head
-      const fade = tailFrac ** 1.8
-
-      const a0 = t0 * Math.PI * 2
-      const a1 = t1 * Math.PI * 2
+    for (let i = 1; i <= STEPS; i++) {
+      const a0 = ((i - 1) / STEPS) * Math.PI * 2
+      const a1 = (i       / STEPS) * Math.PI * 2
       const x0 = cx + rx * Math.sin(fxEff * a0 + phase)
       const y0 = cy + ry * Math.sin(c.fy * a0)
       const x1 = cx + rx * Math.sin(fxEff * a1 + phase)
       const y1 = cy + ry * Math.sin(c.fy * a1)
-
-      const alpha = Math.min(1, fade * 0.70 * (1 + beat * 0.60 + mid * 0.35))
-      const hue = (c.hue + t0 * 55) % 360
-
+      const hue = (c.hue + (i / STEPS) * 55) % 360
       ctx.beginPath()
-      ctx.moveTo(x0, y0)
-      ctx.lineTo(x1, y1)
-      ctx.strokeStyle = `hsla(${hue}, 100%, 56%, ${alpha.toFixed(3)})`
+      ctx.moveTo(x0, y0); ctx.lineTo(x1, y1)
+      ctx.strokeStyle = `hsla(${hue}, 100%, 56%, ${Math.min(0.70, baseAlpha).toFixed(3)})`
       ctx.stroke()
     }
 
-    // head 끝점 빛나는 점
-    const headA = c.drawPhase * Math.PI * 2
-    const hx = cx + rx * Math.sin(fxEff * headA + phase)
-    const hy = cy + ry * Math.sin(c.fy * headA)
+    // 얇은 코어 라인 — 단일 path로 이음새 없이
+    ctx.lineWidth = 0.5
     ctx.beginPath()
-    ctx.arc(hx, hy, 1.5, 0, Math.PI * 2)
-    ctx.fillStyle = `hsla(${(c.hue + 20) % 360}, 100%, 95%, 0.90)`
-    ctx.fill()
+    for (let i = 0; i <= STEPS; i++) {
+      const a = (i / STEPS) * Math.PI * 2
+      const x = cx + rx * Math.sin(fxEff * a + phase)
+      const y = cy + ry * Math.sin(c.fy * a)
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+    }
+    ctx.strokeStyle = `hsla(${c.hue}, 100%, 80%, 0.22)`
+    ctx.stroke()
   }
 
   ctx.globalCompositeOperation = 'source-over'
@@ -831,7 +818,7 @@ function initRiso(W, H, opts = {}) {
     h:  H * (0.22 + Math.abs(Math.sin(cs * 0.043 + i * 1.47)) * 0.52),
     winPh: Math.abs(Math.sin(cs * 0.011 + i * 7.31)) * Math.PI * 6,
   }))
-  return { t: 0, speedMult: opts.speedMult ?? 1, colorSeed: cs, bldgs }
+  return { t: 0, panPhase: 0, speedMult: opts.speedMult ?? 1, colorSeed: cs, bldgs }
 }
 
 function drawRiso(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
@@ -854,7 +841,8 @@ function drawRiso(ctx, W, H, st, paused, beat = 0, mid = 0, treble = 0) {
   for (let y = 0; y < H; y += 4) ctx.fillRect(0, y, W, 1)
 
   // Slow city pan
-  const panX = Math.sin(T * 0.009) * W * (0.016 + mid * 0.024)
+  if (!paused) st.panPhase += sp * (0.009 + mid * 0.005)  // mid → 속도에만 영향, 진폭 고정
+  const panX = Math.sin(st.panPhase) * W * 0.022
 
   // === PLATE 1: Color 1 buildings (offset right+down) ===
   ctx.fillStyle = `hsl(${H1}, 84%, 42%)`
